@@ -9,11 +9,13 @@ class Pollenate extends Mission{
 		})
 	}
 
-	success(leader, partner){
-		leader.influence = leader.maxInfluence;
+	async success(channel){
+		leader.player.maxinfluence += 5;
+		leader.player.influence += 5;
+		return;
 	}
 
-	fail(leader, partner){
+	fail(channel){
 		return;
 	}
 }

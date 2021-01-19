@@ -15,9 +15,15 @@ module.exports = {
 
 		if (playerCount){
 			for (let mission of missions){
-				if (mission.name == 'Pollenate Flowers'){
-					missionTree[0] = mission;
-				}
+				if (mission.name == 'Pollenate Flowers') missionTree[0] = mission;
+				if (mission.name == 'Hive Investigation') missionTree[1] = mission;
+				if (mission.name == 'Collect Honey') missionTree[2] = mission;
+				if (mission.name == 'Hive Investigation') missionTree[3] = mission;
+				if (mission.name == 'Pollenate Flowers') missionTree[4] = mission;
+				if (mission.name == 'Collect Honey') missionTree[5] = mission;
+				if (mission.name == 'Collect Honey') missionTree[6] = mission;
+				if (mission.name == 'Create Backup Plan') missionTree[7] = mission;
+				if (mission.name == 'Crackdown on Traitors') missionTree[8] = mission;
 			}
 		}
 

@@ -10,11 +10,11 @@ class Mission {
 		this.failtext = failtext;
 	}
 
-	success(leader, partner){
+	success(channel){
 
 	}
 
-	fail(leader, partner){
+	fail(channel){
 
 	}
 }
