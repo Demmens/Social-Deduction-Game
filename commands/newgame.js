@@ -91,12 +91,13 @@ class newGameCommand extends Command {
 			newTempArr.push(v);
 		}
 		roles = [...newTempArr];
-
+		let roleMsg = '**Roles in the game**';
 		for (let ply of players){ //Dish out roles
 			let hasRole = 0;
 			let i = 0;
 			for (let role of roles){
 				if (role.team == ply.player.team && hasRole == 0){ 
+					roleMsg += `\n${role.name} - ${role.description}`;
 					ply.player.role = role; //Give them a role
 					ply.member.user.send(`Your role is the **${role.name}**: ${role.description}`)
 					roles.splice(i,1); //Make sure nobody else can get that role.
@@ -105,15 +106,40 @@ class newGameCommand extends Command {
 				}
 			}
 		}
-
+	//===========================================================================
+	//		Tell traitors which roles are in the game
+		message.channel.send(`Traitors are deciding their targets.`);
+		for (let ply of players){
+			if (ply.player.team == 'traitor'){
+				ply.member.user.send(roleMsg + `\n**Type the name of the role you wish to make your target.**`);
+				let sentMessage = false;
+				let trFilter = m => m.author.id === ply.member.id;
+				let trMessageController = new Discord.MessageCollector(message.channel, trFilter);
+				while (sentMessage == false){
+					msg = messageController.next;
+					for (let ply2 of players){
+						if (ply2.player.role.name.toLowerCase() == msg.content.toLowerCase()){
+							sentMessage = true;
+							ply.player.target = ply2;
+							ply.member.user.send(`Your target has been set as the ${ply2.player.role.name}`);
+						}
+					}
+				}
+			}
+		}
 
 	//===========================================================================
 		await setTimeout(function(){},1000);
 		globalThis.leader = 0;
 		globalThis.partner = 0;
-		globalThis.ended = false;
+		globalThis.pollenated = 0;
 		let missionNum = 1;
 		for (let mission of missions){
+			for (let ply of players){ //Reset all 'once per mission' role effects.
+				if (ply.player.role.name == 'Fixer'){ 
+					ply.player.role.used = false;
+				}
+			}
 			let failedvote = true;
 			while (failedvote){
 				message.channel.send(`**Mission ${missionNum}: ${mission.name}**\n\`\`\`Success Effect: ${mission.successtext}\nFail Effect: ${mission.failtext}\`\`\``);
@@ -213,33 +239,16 @@ class newGameCommand extends Command {
 					msg = await messageController.next;
 				}
 
-				let voteTotal = 0;
+				failedvote = true;
 				votes = [];
 				for (let ply of players){
 					let msg = ply.member.user.dmChannel.lastMessage.content.toLowerCase();
-					if (msg == 'no'){
-						voteTotal--;
-						if (ply.player.role.name == 'Gemini') voteTotal--;
+					if (msg = 'yes' && ply.player.team == 'innocent' && ply != leader && ply != partner && leader.player.role != 'Dictator' && partner.player.role != 'Dictator'){
+						failedvote = false;
 					}
-					else if (msg == 'autofail' && ply.player.role.name == 'Fixer' && !ply.player.role.used){
-						msg = 'no';
-						voteTotal -= 100;
-						ply.player.role.used = true;
-					}
-					else {
-						msg = 'yes';
-						voteTotal++;
-						if (ply.player.role.name == 'Gemini') voteTotal++;
-					}
-					votes.push({player: ply, vote: msg});
 				}
-				msg = '';
-				for (let vote of votes){
-					msg += `${vote.vote} - ${vote.player.member.user}\n`;
-				}
-				message.channel.send(`**Votes**\n${msg}`)
-				if (voteTotal > 0) failedvote = false;
-				else message.channel.send(`The vote did not pass.`)
+
+				if (failedvote) message.channel.send(`Every innocent that wasn't on the mission voted no. The leadership will now change hands.`)
 			}
 			message.channel.send(`The vote passed. The mission is now underway.`);
 
@@ -370,7 +379,10 @@ class newGameCommand extends Command {
 						Saboteur.player.role.used = true;
 					}
 				}
-				if (effect) await mission.success(leader, partner, message.channel, players);
+				if (effect){
+					let shouldEnd = await mission.success(leader, partner, message.channel, players);
+					if (shouldEnd) return;
+				}
 				else message.channel.send('The success effect was cancelled.')
 			} else {
 				message.channel.send(`The mission failed!`);
@@ -380,7 +392,10 @@ class newGameCommand extends Command {
 						Defender.player.role.used = true;
 					}
 				}
-				if (effect) await mission.fail(leader, partner, message.channel, players);
+				if (effect){
+					let shouldEnd = await mission.fail(leader, partner, message.channel, players);
+					if (shouldEnd) return;
+				}
 				else message.channel.send('The fail effect was cancelled.');
 			}
 

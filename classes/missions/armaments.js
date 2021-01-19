@@ -1,9 +1,9 @@
 const Mission = require('../Mission');
 
-class Investigate extends Mission{
+class Armaments extends Mission{
 	constructor(){
 		super({
-			name: 'Collect Honey',
+			name: 'Gather Armaments',
 			successtext: 'Add a Success card to the discard pile',
 			failtext: 'Add two Fail cards to the discard pile'
 		})
@@ -21,4 +21,4 @@ class Investigate extends Mission{
 	}
 }
 
-module.exports = Investigate;
+module.exports = Armaments;

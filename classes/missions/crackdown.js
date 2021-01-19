@@ -3,7 +3,7 @@ const Mission = require('../Mission');
 class Investigate extends Mission{
 	constructor(){
 		super({
-			name: 'Crackdown on Traitors',
+			name: 'Usurp Queen Bee',
 			successtext: 'Innocents win the game',
 			failtext: 'Traitors win the game'
 		})
@@ -11,12 +11,12 @@ class Investigate extends Mission{
 
 	async success(channel){
 		channel.send('**INNOCENTS WIN**');
-		return
+		return true;
 	}
 
 	fail(channel){
 		channel.send('**TRAITORS WIN**');
-		return;
+		return true;
 	}
 }
 

@@ -4,9 +4,9 @@ const Discord = require('discord.js');
 class Investigate extends Mission{
 	constructor(){
 		super({
-			name: 'Hive Investigation',
+			name: 'Hive Interrogation',
 			successtext: 'Determine a players loyalty',
-			failtext: 'No Effect'
+			failtext: 'Traitors learn the identity of a non-target player'
 		})
 	}
 
@@ -32,7 +32,17 @@ class Investigate extends Mission{
 	}
 
 	fail(channel){
-		return;
+		for (let ply of players){
+			if (ply.player.role.name == 'traitor'){
+				let isTarget = true;
+				let info;
+				while (isTarget){
+					info = players[Math.floor(Math.random()*players.length)]
+					if (info != ply.player.target) isTarget = false;
+				}
+				ply.member.user.send(`${info.member.displayName} is the ${info.player.role.name}`);
+			}
+		}
 	}
 }
 
