@@ -1,14 +1,15 @@
 const { Command } = require("discord-akairo");
 const missiontree = require('../gameRunning/missiontree.js');
-var roles = require('../classes/roles.js');
+var roles = require('../classes/roles');
 const Discord = require('discord.js');
 
 //Config
 const StartingInfluence = 15;
-const StartingInfluenceMax = 15;
 const SuccessCards = 6;
 const FailCards = 12;
 const InfluenceRegen = 2;
+const innoRoleChoices = 2;
+const traitorRoleChoices = 3;
 //
 
 class newGameCommand extends Command {
@@ -41,20 +42,18 @@ class newGameCommand extends Command {
 		players = rdmPlayers;
 		let x = 0;
 		for (let ply of players){
-			if (x % 2 == 0 && x != 0){
+			if (true || (x % 2 == 0 && x != 0)){
 				ply.member.send(`You are a **Traitor**`);
 				ply.player = {
 					"team": "traitor",
-					"influence": StartingInfluence,
-					"maxinfluence": StartingInfluenceMax
+					"influence": StartingInfluence
 				};
 			}
 			else {
 				ply.member.send(`You are **Innocent**`);
 				ply.player = {
 					"team": "innocent",
-					"influence": StartingInfluence,
-					"maxinfluence": StartingInfluenceMax
+					"influence": StartingInfluence
 				};
 			}
 			x++
@@ -83,71 +82,146 @@ class newGameCommand extends Command {
 		drawPile = [...tempArr];
 	//===========================================================================
 	//		Give everyone roles
-		let newTempArr = [];
-		while (roles.length > 0){ //Randomise order of roles
-			let k = Math.floor(Math.random()*roles.length);
-			let v = roles[k];
-			roles.splice(k,1);
-			newTempArr.push(v);
+
+		let tempRoles = JSON.parse(JSON.stringify(roles));
+		let newInnoArr = [];
+		let newTraitorArr = [];
+		while (tempRoles.innocent.length > 0){ //Randomise order of roles
+			let k = Math.floor(Math.random()*tempRoles.innocent.length);
+			let v = tempRoles.innocent[k];
+			tempRoles.innocent.splice(k,1);
+			newInnoArr.push(v);
 		}
-		roles = [...newTempArr];
-		let roleMsg = '**Roles in the game**';
+		while (tempRoles.traitor.length > 0){ //Randomise order of roles
+			let k = Math.floor(Math.random()*tempRoles.traitor.length);
+			let v = tempRoles.traitor[k];
+			tempRoles.traitor.splice(k,1);
+			newTraitorArr.push(v);
+		}
+		roles.innocent = JSON.parse(JSON.stringify(newInnoArr));
+		roles.traitor = JSON.parse(JSON.stringify(newTraitorArr));
+		let roleMsg = '**Innocent Roles in the game**';
+		let roleChoices = [];
 		for (let ply of players){ //Dish out roles
-			let hasRole = 0;
 			let i = 0;
-			for (let role of roles){
-				if (role.team == ply.player.team && hasRole == 0){ 
-					roleMsg += `\n${role.name} - ${role.description}`;
-					ply.player.role = role; //Give them a role
-					ply.member.user.send(`Your role is the **${role.name}**: ${role.description}`)
-					roles.splice(i,1); //Make sure nobody else can get that role.
-					hasRole = 1;
-					i++;
-				}
+			let tbl;
+			let loops;
+			if (ply.player.team == 'innocent'){
+				tbl = roles.innocent;
+				loops = innoRoleChoices;
+			} else {
+				tbl = roles.traitor;
+				loops = traitorRoleChoices;
 			}
+			let obj = {
+				player: ply,
+				choices: []
+			}
+			let msg = '**Choose a Role**';
+			let x = 0;
+			for (let i = 0; i < loops; i++){
+				x++
+				let rand = Math.floor(Math.random()*tbl.length);
+				let role = tbl[rand];
+				tbl.splice(rand,1);
+				obj.choices.push(role); //Assign that role choice to the player.
+				msg += `\n${x} - ${role.name}: ${role.description}`
+			}
+			roleChoices.push(obj);
+			ply.member.user.send(msg);
+		}
+
+		let allPicked = false
+		while (!allPicked){
+			let x = 0;
+			let chosen = 0;
+			for (let ply of players){
+				let choices = 0;
+				if (ply.player.team == 'innocent') choices = innoRoleChoices;
+				if (ply.player.team == 'traitor') choices = traitorRoleChoices;
+
+				let msg = ply.member.user.dmChannel.lastMessage;
+				if (typeof msg.content == "number" && msg.content <= choices){
+					chosen++;
+				}
+				x++;
+			}
+			if (x == chosen) allPicked = true;
 		}
 	//===========================================================================
 	//		Tell traitors which roles are in the game
 		message.channel.send(`Traitors are deciding their targets.`);
+		let targetTbl = [];
 		for (let ply of players){
+			if (ply.player.role.name == 'Researcher') ply.member.user.send(roleMsg);
 			if (ply.player.team == 'traitor'){
-				ply.member.user.send(roleMsg + `\n**Type the name of the role you wish to make your target.**`);
+				if (ply.player.role.name == 'Spelling Bee'){ //Extrovert knows all traitor allies.
+					let traitorMsg = `**Your allies are:**`
+					for (let ply2 of players){
+						if (ply2.player.team == 'traitor' && ply2 != ply){
+							traitorMsg += `\n${ply.member.displayName}`;
+						}
+					}
+					ply.member.user.send(traitorMsg);
+				}
+				ply.member.user.send(roleMsg + `\n**Type the name of the role you wish to make your target.**`); //Traitors set Targets
 				let sentMessage = false;
-				let trFilter = m => m.author.id === ply.member.id;
-				let trMessageController = new Discord.MessageCollector(message.channel, trFilter);
+				var trTargetFilter = m => m.author.id === ply.member.user.id;
+				var trMessageController = new Discord.MessageCollector(ply.member.user.dmChannel, trTargetFilter);
 				while (sentMessage == false){
-					msg = messageController.next;
+					let msg = await trMessageController.next;
 					for (let ply2 of players){
 						if (ply2.player.role.name.toLowerCase() == msg.content.toLowerCase()){
 							sentMessage = true;
 							ply.player.target = ply2;
+							targetTbl.push(ply2);
 							ply.member.user.send(`Your target has been set as the ${ply2.player.role.name}`);
 						}
 					}
 				}
+
+			} else if (ply.player.role.name == 'Detective'){
+				let tgt = players[Math.floor(Math.random()*players.length)];
+				while (tgt.player.team != 'innocent' && tgt != ply) tgt = players[Math.floor(Math.random()*players.length)];
+				ply.member.user.send(`${tgt.member.displayName} is a ${tgt.player.role.name}`);
+			}
+		}
+
+		for (let ply of players){
+			if (ply.player.role.name == 'Insider'){
+				let tgt = targetTbl[Math.floor(Math.random()*targetTbl.length)];
+				//ply.member.user.send(`One of the targets is the ${tgt.player.role.name}`);
 			}
 		}
 
 	//===========================================================================
-		await setTimeout(function(){},1000);
 		globalThis.leader = 0;
 		globalThis.partner = 0;
 		globalThis.pollenated = 0;
 		let missionNum = 1;
 		for (let mission of missions){
-			for (let ply of players){ //Reset all 'once per mission' role effects.
-				if (ply.player.role.name == 'Fixer'){ 
-					ply.player.role.used = false;
-				}
-			}
 			let failedvote = true;
 			while (failedvote){
+
+				//Reset all once per mission effects
+				for (let ply of players){
+					if (ply.player.role.name == 'Hypnotist') ply.player.role.used = false;
+					if (ply.player.role.name == 'Psychic'){
+						let msg = '**Top two cards of the draw pile:**';
+						for (let i = 0; i<2; i++){
+							msg += `\n${drawPile[i]}`;
+						}
+						ply.member.user.send(msg);
+					}
+				}
+
 				message.channel.send(`**Mission ${missionNum}: ${mission.name}**\n\`\`\`Success Effect: ${mission.successtext}\nFail Effect: ${mission.failtext}\`\`\``);
 				let infMessage = '**Current influence totals**';
 				for (let ply of players){
-					infMessage += `\n${ply.member.user}: ${ply.player.influence}/${ply.player.maxinfluence}`
+					infMessage += `\n${ply.member.user}: ${ply.player.influence}`
 				}
 				message.channel.send(infMessage);
+				message.channel.send(`Draw Pile: ${drawPile.length}\nDiscard Pile: ${discardPile.length}`);
 				message.channel.send(`Direct message The Hive with the number of influence you wish to spend, and then ${message.author} must type \`!done\` in this channel once you're finished.`)
 				let Marketeer;
 				let Misinformant;
@@ -158,11 +232,11 @@ class newGameCommand extends Command {
 						Marketeer = ply;
 						ply.member.user.send(`Type the display name of a player in a separate message **before** you type your influence number, then that player will have 2 added to their influence this round.`)
 					}
-					if (ply.player.role.name == 'Misinformant'){
+					if (ply.player.role.name == 'Supressor'){
 						Misinformant = ply;
 						ply.member.user.send(`Type the display name of a player in a separate message **before** you type your influence number, then that player will have 2 deducted from their influence this round.`)
 					}
-					ply.member.user.send(`You currently have ${ply.player.influence}/${ply.player.maxinfluence} influence. How much would you like to spend?`)
+					ply.member.user.send(`You currently have ${ply.player.influence} influence. How much would you like to spend?`)
 				}
 
 				let msg = {content: ''};
@@ -189,18 +263,20 @@ class newGameCommand extends Command {
 					}
 				}
 
-				let highestInf = 0;
+				let highestInf = -1;
 				let votes = [];
 				let influenceSpent = 0;
 				for (let ply of players){
 					let msg = ply.member.user.dmChannel.lastMessage;
 					let num = msg.content;
+					if (msg.author != ply.member.user) num = 0 //If the last message was from the bot, assumemd to not spend any influence.
 					if (isNaN(num)) num = 0; //If they didn't type a number, they are assumed to not spend any influence.
 					else num = parseInt(num);
 					if (num > ply.player.influence) num = ply.player.influence; //If they spend more than they have, they are assumed to spend all their influence.
+					if (num < 0) num = 0;
 					let ogNum = num;
 					if (ply == MarketeerTarget) num += 2; //Account for role shenanigans
-					if (ply == MisinformantTarget) num -=2;
+					if (ply == MisinformantTarget) num = 1;
 					if (num > highestInf){
 						highestInf = num;
 						leader = ply;
@@ -232,7 +308,7 @@ class newGameCommand extends Command {
 				for (let ply of players){
 					if (ply.member == partner) partner = ply;
 				}
-				message.channel.send(`Team Leader: ${leader.member.user}\nPartner: ${partner.member.user}\nEveryone may now direct message the bot with \`yes\` or \`no\` to vote, and then ${message.author} must type \`!done\` in this channel once you're finished.`)
+				message.channel.send(`Team Leader: ${leader.member.user}\nPartner: ${partner.member.user}\nEveryone that isn't on the mission may now direct message the bot with \`yes\` or \`no\` to vote, and then ${message.author} must type \`!done\` in this channel once you're finished.`)
 
 				msg = {content: ''};
 				while (msg.content.toLowerCase() != '!done'){
@@ -241,16 +317,35 @@ class newGameCommand extends Command {
 
 				failedvote = true;
 				votes = [];
+				let voteTotal = 0;
+				let yesTotal = 0;
+				let noTotal = 0;
+				let votemsg = '**Votes**'
 				for (let ply of players){
 					let msg = ply.member.user.dmChannel.lastMessage.content.toLowerCase();
-					if (msg = 'yes' && ply.player.team == 'innocent' && ply != leader && ply != partner && leader.player.role != 'Dictator' && partner.player.role != 'Dictator'){
-						failedvote = false;
+					if (msg == 'yes'){
+						if (ply.player.role.name == 'Two Bees in a Trenchcoat') yesTotal++;
+						yesTotal++;
+						votemsg += `\n${ply.member.user} - Yes`;
+					}
+					if (msg == 'no'){
+						if (ply.player.role.name == 'Two Bees in a Trenchcoat') noTotal++;
+						noTotal++;
+						votemsg += `\n${ply.member.user} - No`;
+					}
+					if (msg == 'autofail' && ply.player.role.name == 'Hypnotist' && !ply.player.role.used){
+						voteTotal += 100;
+						votemsg += `\n${ply.member.user} - No`;
+						ply.player.role.used = true;
 					}
 				}
-
+				if (yesTotal >= noTotal) failedvote = false;
+				if (yesTotal < noTotal) failedvote = true;
+				if (partner.player.role.name == 'Dictator') failedvote = false;
+				if (voteTotal == 0) failedvote = false;
 				if (failedvote) message.channel.send(`Every innocent that wasn't on the mission voted no. The leadership will now change hands.`)
 			}
-			message.channel.send(`The vote passed. The mission is now underway.`);
+			message.channel.send(`The vote passed. Everyone who voted \`yes\` gains 2 influence. The mission is now underway.`);
 
 			//Mission Start
 			let Saboteur;
@@ -283,8 +378,8 @@ class newGameCommand extends Command {
 				}
 				drawPile = [...tempArr];
 			}
-
-			if (leader.player.role.name == 'Veteran'){ //Veteran always draws 2S 1F
+			if (leader.player.role.name == 'Strategist' && drawPile.length != 3) shouldDraw = 4;
+			if (leader.player.role.name == 'Veteran' && partner.player.role.name != 'Fixer'){ //Veteran always draws 2S 1F unless fixer is in the game.
 				let i=0;
 				let hasFail = false;
 				let hasSucceed = 0;
@@ -303,23 +398,32 @@ class newGameCommand extends Command {
 					}
 					i++;
 				}
-
-				if (cards.length < shouldDraw){ //If they can't draw 2S 1F, just draw from the top of the deck.
-					for (let card of drawPile){
-						if (cards.length < shouldDraw){
+			} else if (leader.player.role.name == 'Fixer' || partner.player.role.name == 'Fixer'){
+				let i = 0; //When fixer is in power, success cards are not drawn where possible.
+				for (let card of drawPile){
+					if (cards.length < shouldDraw){
+						if (card == 'Fail'){
 							cards.push(card);
-							drawPile.splice(0,1);
+							drawPile.splice(i,1);
 						}
 					}
+					i++;
 				}
-			} else{
+			} else if (partner.player.role.name == 'Professional'){
 				let i = 0;
 				for (let card of drawPile){
-					if (i < shouldDraw){
+					if (card == 'Success'){
 						cards.push(card);
-						drawPile.splice(0,1);
+						drawPile.splice(i,1);
 					}
-					i++
+					i++;
+				}
+			}
+
+			for (let card of drawPile){ //Draw up randomly to 3 cards if at less.
+				if (cards.length < shouldDraw){
+					cards.push(card);
+					drawPile.splice(0,1);
 				}
 			}
 
@@ -329,22 +433,78 @@ class newGameCommand extends Command {
 				}
 			}
 
-			let msg = '**You have drawn:**'
+			if (leader.player.role.name == 'Strategist' && cards.length > 3){
+				let msg = '**You have drawn:**';
+				let x = 0;
+				for (let card of cards){
+					x++;
+					msg += `\n${x} - ${card}`;
+				}
+				msg += `\nType the number of the card you wish to put on top of the draw pile.`;
+				leader.member.user.send(msg);
+
+				var leaderDiscardFilter = m => m.author.id === leader.member.user.id;
+				var leaderDiscardMessage = new Discord.MessageCollector(leader.member.user.dmChannel, leaderDiscardFilter);
+
+				msg = shouldDraw+1;
+				while (msg > shouldDraw || isNaN(msg)){
+					msg = await leaderDiscardMessage.next;
+					if (parseInt(msg.content) != NaN){
+						msg = parseInt(msg.content) - 1;
+					}
+				}
+
+				drawPile.unshift(cards[msg]); // Place specified card on top of draw pile
+				cards.splice(msg,1); //Remove the card from the hand
+			}
+
+			if (leader.player.role.name == 'Salvager' && discardPile.length != 0){
+				cards.push(discardPile[discardPile.length-1]); //Take top card of discard pile.
+				discardPile.splice(discardPile.length-1,1);
+				let msg = '**You have drawn:**';
+				let x = 0;
+				for (let card of cards){
+					x++;
+					msg += `\n${x} - ${card}`;
+				}
+				msg += ` (salvaged)`; //Let them know which card is from the discard pile.
+				msg += `\nType the number of the card you wish to discard.`;
+				leader.member.user.send(msg);
+
+				var leaderDiscardFilter = m => m.author.id === leader.member.user.id;
+				var leaderDiscardMessage = new Discord.MessageCollector(leader.member.user.dmChannel, leaderDiscardFilter);
+
+				msg = shouldDraw+1;
+				while (msg > shouldDraw || isNaN(msg)){
+					msg = await leaderDiscardMessage.next;
+					if (parseInt(msg.content) != NaN){
+						msg = parseInt(msg.content) - 1;
+					}
+				}
+
+				discardPile.push(cards[msg]); // Discard specified card
+				cards.splice(msg,1); //Remove the card from the hand
+			}
+
+			shouldDraw = cards.length;
+			let msg = '**You have drawn:**';
 			let x = 0;
 			for (let card of cards){
 				x++;
 				msg += `\n${x} - ${card}`;
 			}
-			msg += `\nType the number of the card you wish to discard.`
-			leader.member.user.send(msg)
+			msg += `\nType the number of the card you wish to discard.`;
+			leader.member.user.send(msg);
 
 			var leaderDiscardFilter = m => m.author.id === leader.member.user.id;
 			var leaderDiscardMessage = new Discord.MessageCollector(leader.member.user.dmChannel, leaderDiscardFilter);
 
-			msg = 5;
-			while (msg > shouldDraw){
+			msg = shouldDraw+1;
+			while (msg > shouldDraw || isNaN(msg)){
 				msg = await leaderDiscardMessage.next;
-				msg = parseInt(msg.content) - 1;
+				if (!isNaN(msg.content)){
+					msg = parseInt(msg.content) - 1;
+				}
 			}
 
 			discardPile.push(cards[msg]); // Discard the card specified
@@ -363,10 +523,12 @@ class newGameCommand extends Command {
 			var partnerDiscardFilter = m => m.author.id === partner.member.user.id;
 			var partnerDiscardMessage = new Discord.MessageCollector(partner.member.user.dmChannel, partnerDiscardFilter);
 
-			msg = 5;
-			while (msg > shouldDraw){
+			msg = shouldDraw+1;
+			while (msg > shouldDraw || isNaN(msg)){
 				msg = await partnerDiscardMessage.next;
-				msg = parseInt(msg.content) - 1;
+				if (!isNaN(msg.content)){
+					msg = parseInt(msg.content) - 1;
+				}
 			}
 
 			//Determine Result
@@ -379,8 +541,8 @@ class newGameCommand extends Command {
 						Saboteur.player.role.used = true;
 					}
 				}
-				if (effect){
-					let shouldEnd = await mission.success(leader, partner, message.channel, players);
+				if (successEffect){
+					let shouldEnd = await mission.success(message.channel);
 					if (shouldEnd) return;
 				}
 				else message.channel.send('The success effect was cancelled.')
@@ -392,8 +554,8 @@ class newGameCommand extends Command {
 						Defender.player.role.used = true;
 					}
 				}
-				if (effect){
-					let shouldEnd = await mission.fail(leader, partner, message.channel, players);
+				if (failEffect){
+					let shouldEnd = await mission.fail(message.channel);
 					if (shouldEnd) return;
 				}
 				else message.channel.send('The fail effect was cancelled.');
@@ -403,9 +565,9 @@ class newGameCommand extends Command {
 
 			for (let ply of players){
 				ply.player.influence += InfluenceRegen;
-				if (InfluenceRegen > 0) message.channel.send(`Everyone recovers ${InfluenceRegen} influence.`)
-				if (ply.player.influence > ply.player.maxinfluence) ply.player.influence = ply.player.maxinfluence;
 			}
+
+			if (InfluenceRegen > 0) message.channel.send(`Everyone gains ${InfluenceRegen} influence.`)
 
 			missionNum++; //Proceed to the next mission.
 		}
