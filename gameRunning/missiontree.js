@@ -15,14 +15,14 @@ module.exports = {
 
 		if (playerCount){
 			for (let mission of missions){
-				if (mission.name == 'Pollenate Daisies'){
+				if (mission.name == 'Secure Daisy Field'){
 					missionTree[0] = mission;
 				}
-				if (mission.name == 'Pollenate Dandelions'){
+				if (mission.name == 'Secure Dandelion Field'){
 					missionTree[2] = mission;
 					missionTree[6] = mission;
 				}
-				if (mission.name == 'Pollenate Daffodils'){
+				if (mission.name == 'Secure Daffodil field'){
 					missionTree[4] = mission;
 					missionTree[8] = mission;
 				}

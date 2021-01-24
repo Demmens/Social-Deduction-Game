@@ -63,7 +63,7 @@ module.exports = {
 			description: 'Set influence to 1 for any players total when determining team leader. May not pick the same player twice.'
 		},
 		{
-			name: 'Fixer',
+			name: 'Fumble Bee',
 			description: 'While you are on a mission, success cards cannot be drawn (if possible).'
 		},
 		{

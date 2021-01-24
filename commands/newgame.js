@@ -8,8 +8,8 @@ const StartingInfluence = 8;
 const SuccessCards = 6;
 const FailCards = 12;
 const InfluenceRegen = 2;
-const innoRoleChoices = 3;
-const traitorRoleChoices = 5;
+const innoRoleChoices = 2;
+const traitorRoleChoices = 2;
 
 const MarketeerStrength = 4;
 //
@@ -29,16 +29,14 @@ class newGameCommand extends Command {
 		var innocentCount = 0;
 
 		let MisinformantTarget;
-		/*for (let [_,chnl] of message.guild.channels.cache){
+		for (let [_,chnl] of message.guild.channels.cache){
 			if (chnl.name == 'Game Chat'){
 				for (let [_,ply] of chnl.members){ //Everyone in the voice chat is a player of the game.
 					players.push({"member": ply});
 				} 
 			}
-		}*/
-		for (let [_,mem] of message.guild.members.cache){ //REMOVE THIS PART WHEN ACTUALLY PLAYING
-			if (mem.displayName == 'Dem') players.push({member: mem});
-		} //
+		}
+
 
 		let rdmPlayers = [];
 		while (players.length > 0){
@@ -154,18 +152,17 @@ class newGameCommand extends Command {
 				if (ply.player.team == 'innocent') choices = innoRoleChoices;
 				if (ply.player.team == 'traitor') choices = traitorRoleChoices;
 				let msg = ply.member.user.dmChannel.lastMessage;
-				if (msg.author != ply.member.user){
-					let f = m => m.author.id === ply.member.id;
-					let pickRoleControler = new Discord.MessageCollector(ply.member.user.dmChannel, f);
-					msg = await pickRoleControler.next;
-				}
-				if (!isNaN(msg.content) && msg.content <= choices){
+				if (!isNaN(msg.content) && parseInt(msg.content) <= choices && msg.author == ply.member.user){
 					let rl;
 					for (let role of roleChoices){
 						if (role.player == ply) rl = role;
 					}
-					ply.player.role = rl.choices[parseInt(msg)-1];
+					ply.player.role = rl.choices[parseInt(msg.content)-1];
 					chosen++;
+				} else {
+					let f = m => m.author.id === ply.member.id;
+					let pickRoleControler = new Discord.MessageCollector(ply.member.user.dmChannel, f);
+					msg = await pickRoleControler.next;
 				}
 				x++;
 			}
@@ -309,7 +306,7 @@ class newGameCommand extends Command {
 						if (!isNaN(msg.content) && msg.author == ply.member.user){
 							done++;
 						} else{
-							let f = m => m.author.id === message.author.id;
+							let f = m => m.author.id === ply.member.id;
 							let inflController = new Discord.MessageCollector(ply.member.user.dmChannel, f);
 							msg = await inflController.next;
 						}
@@ -402,7 +399,7 @@ class newGameCommand extends Command {
 							if ((msg.content.toLowerCase() == 'yes' || msg.content.toLowerCase() == 'no') && msg.author == ply.member.user){
 								done++;
 							} else {
-								let f = m => m.author.id === message.author.id;
+								let f = m => m.author.id === ply.member.id;
 								let voteController = new Discord.MessageCollector(ply.member.user.dmChannel, f);
 								msg = await voteController.next;
 							}
@@ -495,8 +492,8 @@ class newGameCommand extends Command {
 				drawPile = [...tempArr];
 			}
 			if (leader.player.role.name == 'Strategist' && drawPile.length != 3) shouldDraw = 4;
-			if (leader.player.role.name == 'Veteran' && partner.player.role.name != 'Fixer'){ //Veteran always draws 2S 1F unless fixer is in the game.
-				let i=0;
+			if (leader.player.role.name == 'Veteran' && partner.player.role.name != 'Fumble Bee'){
+				let i=0; //Veteran always draws 2S 1F unless Fumble Bee is on the mission.
 				let hasFail = false;
 				let hasSucceed = 0;
 				for (let card of drawPile){
@@ -514,8 +511,8 @@ class newGameCommand extends Command {
 					}
 					i++;
 				}
-			} else if (leader.player.role.name == 'Fixer' || partner.player.role.name == 'Fixer'){
-				let i = 0; //When fixer is in power, success cards are not drawn where possible.
+			} else if (leader.player.role.name == 'Fumble Bee' || partner.player.role.name == 'Fumble Bee'){
+				let i = 0; //When Fumble Bee is in power, success cards are not drawn where possible.
 				for (let card of drawPile){
 					if (cards.length < shouldDraw){
 						if (card == 'Fail'){
@@ -528,7 +525,7 @@ class newGameCommand extends Command {
 			} else if (partner.player.role.name == 'Professional'){
 				let i = 0;
 				for (let card of drawPile){
-					if (card == 'Success'){
+					if (card == 'Success' && cards.length < 1){
 						cards.push(card);
 						drawPile.splice(i,1);
 					}

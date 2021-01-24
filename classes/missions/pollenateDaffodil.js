@@ -3,8 +3,8 @@ const Mission = require('../Mission');
 class PollenateDaffodil extends Mission{
 	constructor(){
 		super({
-			name: 'Pollenate Daffodils',
-			successtext: 'Pollenating 3 times results in a victory',
+			name: 'Secure Daffodil field',
+			successtext: 'Securing 3 fields results in an innocent victory.',
 			failtext: 'Add two Fail cards to the discard pile'
 		})
 	}
