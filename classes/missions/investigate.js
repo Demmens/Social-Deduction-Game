@@ -33,12 +33,10 @@ class Investigate extends Mission{
 
 	fail(channel){
 		for (let ply of players){
-			if (ply.player.role.name == 'traitor'){
-				let isTarget = true;
-				let info;
-				while (isTarget){
-					info = players[Math.floor(Math.random()*players.length)]
-					if (info != ply.player.target) isTarget = false;
+			if (ply.player.team == 'traitor'){
+				let info = players[Math.floor(Math.random()*players.length)];
+				while ((info == ply.player.target || info == ply) && players.length != 1){
+					info = players[Math.floor(Math.random()*players.length)];
 				}
 				ply.member.user.send(`${info.member.displayName} is the ${info.player.role.name}`);
 			}

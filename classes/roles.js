@@ -11,7 +11,7 @@ module.exports = {
 		},
 		{
 			name: 'Marketeer',
-			description: 'Add two influence to any players total when determining team leader.'
+			description: 'Add four influence to any players total when determining team leader.'
 		},
 		{
 			name: 'Veteran',
@@ -40,6 +40,16 @@ module.exports = {
 		{
 			name: 'Two Bees in a Trenchcoat',
 			description: 'Your votes count twice.'
+		},
+		{
+			name: 'Insider',
+			description: 'Knows one of the traitors targets.',
+			traitors: 2
+		},
+		{
+			name: 'Double-Agent',
+			description: 'Knows one innocent and one traitor, but not which way round.',
+			traitors: 2
 		}
 	],
 	traitor: [
@@ -50,7 +60,7 @@ module.exports = {
 		},
 		{
 			name: 'Suppressor',
-			description: 'Set influence to 1 for any players total when determining team leader.'
+			description: 'Set influence to 1 for any players total when determining team leader. May not pick the same player twice.'
 		},
 		{
 			name: 'Fixer',
@@ -58,7 +68,8 @@ module.exports = {
 		},
 		{
 			name: 'Spelling Bee',
-			description: 'Knows all traitor allies.'
+			description: 'Knows all traitor allies.',
+			traitors: 2
 		},
 		{
 			name: 'Hypnotist',
@@ -71,7 +82,8 @@ module.exports = {
 		},
 		{
 			name: 'Dictator',
-			description: 'Votes cannot fail if you are chosen as the partner.'
+			description: 'Votes cannot fail if you are chosen as the partner.',
+			traitors: 2
 		}
 	]
 };
