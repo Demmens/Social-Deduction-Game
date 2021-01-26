@@ -2,6 +2,7 @@ const { Command } = require("discord-akairo");
 const missiontree = require('../gameRunning/missiontree.js');
 var roles = require('../classes/roles');
 const Discord = require('discord.js');
+const f = require("../functions.js");
 
 //General Config
 const StartingInfluence = 8;
@@ -30,6 +31,7 @@ class newGameCommand extends Command {
 		var traitorCount = 0;
 		var innocentCount = 0;
 
+		let MarketeerTarget;
 		let MisinformantTarget;
 		for (let [_,chnl] of message.guild.channels.cache){
 			if (chnl.name == 'Game Chat'){
@@ -39,15 +41,7 @@ class newGameCommand extends Command {
 			}
 		}
 
-
-		let rdmPlayers = [];
-		while (players.length > 0){
-			let k = Math.floor(Math.random()*players.length);
-			let v = players[k];
-			players.splice(k,1)
-			rdmPlayers.push(v);
-		}
-		players = rdmPlayers;
+		players = f.ArrRandomise(players);
 		let x = 0;
 		for (let ply of players){
 			if (x % 2 == 0 && x != 0){
@@ -82,35 +76,12 @@ class newGameCommand extends Command {
 			drawPile.push("Fail");
 		}
 
-		let tempArr = [];
-		while (drawPile.length > 0){ //Shuffle the deck
-			let k = Math.floor(Math.random()*drawPile.length);
-			let v = drawPile[k];
-			drawPile.splice(k,1);
-			tempArr.push(v);
-		}
-		drawPile = [...tempArr];
+		drawPile = f.ArrRandomise(drawPile);
 	//===========================================================================
 	//		Give everyone roles
 
-		let tempRoles = JSON.parse(JSON.stringify(roles));
-		let newInnoArr = [];
-		let newTraitorArr = [];
-		while (tempRoles.innocent.length > 0){ //Randomise order of roles
-			let k = Math.floor(Math.random()*tempRoles.innocent.length);
-			let v = tempRoles.innocent[k];
-			if (!v.traitors || traitorCount >= v.traitors) newInnoArr.push(v); //If the role has a specific traitor requirement to be in the game.
-			tempRoles.innocent.splice(k,1);
-		}
-		while (tempRoles.traitor.length > 0){ //Randomise order of roles
-			let k = Math.floor(Math.random()*tempRoles.traitor.length);
-			let v = tempRoles.traitor[k];
-			tempRoles.traitor.splice(k,1);
-			if (traitorCount >= v.traitors || !v.traitors) newTraitorArr.push(v);
-		}
-
-		roles.innocent = JSON.parse(JSON.stringify(newInnoArr));
-		roles.traitor = JSON.parse(JSON.stringify(newTraitorArr));
+		roles.innocent = f.ArrRandomise(roles.innocent);
+		roles.traitor = f.ArrRandomise(roles.traitor);
 		let roleMsg = '**Roles in the game**';
 		let roleChoices = [];
 
@@ -163,8 +134,8 @@ class newGameCommand extends Command {
 					ply.player.role = rl.choices[parseInt(msg.content)-1];
 					chosen++;
 				} else {
-					let f = m => m.author.id === ply.member.id;
-					let pickRoleControler = new Discord.MessageCollector(ply.member.user.dmChannel, f);
+					let fl = m => m.author.id === ply.member.id;
+					let pickRoleControler = new Discord.MessageCollector(ply.member.user.dmChannel, fl);
 					msg = await pickRoleControler.next;
 				}
 				x++;
@@ -176,8 +147,47 @@ class newGameCommand extends Command {
 				roleMsg += `\n${ply.player.role.name} - ${ply.player.role.description}`;
 			}
 		}
-	//===========================================================================
-	//		Tell traitors which roles are in the game
+//======================================================================
+//		Assign Variables
+		globalThis.Researcher = null;
+		globalThis.Spy = null;
+		globalThis.Defender = null;
+		globalThis.CapitalBee = null;
+		globalThis.Veteran = null;
+		globalThis.Detective = null;
+		globalThis.Professional = null;
+		globalThis.TwoBees = null;
+		globalThis.DoubleAgent = null;
+		globalThis.Omniscient = null;
+		globalThis.Insider = null;
+		globalThis.Strategist = null;
+		globalThis.Salvager = null;
+		globalThis.Sleuth = null;
+
+		globalThis.Gambler = null;
+		globalThis.Suppressor = null;
+		globalThis.Saboteur = null;
+		globalThis.FumbleBee = null;
+		globalThis.SpellingBee = null;
+		globalThis.Hypnotist = null;
+		globalThis.Psychic = null;
+		globalThis.Dictator = null;
+
+		for (let ply of players){
+			let rl = ply.player.role.name;
+			if (rl == 'Spy') Spy = ply;
+			if (rl == 'Researcher') Researcher = ply;
+			if (rl == 'Defender') Defender = ply;
+			if (rl == 'Capital Bee') CapitalBee = ply;
+			if (rl == 'Veteran') Veteran = ply;
+			if (rl == 'Detective') Detective = ply;
+			if (rl == 'Professional') Professional = ply;
+			if (rl == 'Two Bees in a Trenchcoat') TwoBees = ply;
+			if (rl == 'Double-Agent') DoubleAgent = ply;
+			if (rl == 'Omniscient') Omniscient = ply;
+		}
+//===========================================================================
+//		Tell traitors which roles are in the game
 		message.channel.send(`Traitors are deciding their targets.`);
 		let targetTbl = [];
 		for (let ply of players){
@@ -229,23 +239,44 @@ class newGameCommand extends Command {
 				ply.member.user.send(`${tgt.member.displayName} is a ${tgt.player.role.name}`);
 			}
 		}
+//=========================================
+//	Traitors choose targets
+		let traitorsChoseTargets = false;
+		while (!traitorsChoseTargets){
+			let i = 0;
+			for (let ply of players){
+				if (ply.player.team == 'traitor' && ply.player.role.name != 'Gambler'){
+					i++;
+					let msg = ply.member.user.dmChannel.lastMessage;
+					let tgtChosen = false;
+					for (let ply2 of players){
+						if (ply2.player.role.name.toLowerCase() == msg.content.toLowerCase()){
+							sentMessage++;
+							ply.player.target = ply2;
+							tgtChosen = true;
+						}
+					}
+					if (!tgtChosen){
+						var trTargetFilter = m => m.author.id === ply.member.user.id;
+						var trMessageController = new Discord.MessageCollector(ply.member.user.dmChannel, trTargetFilter);
+						msg = await trMessageController.next;
+					}	
+				}
+			}
+			if (sentMessage == i) traitorsChoseTargets = true;
+		}	
 
 		for (let ply of players){
 			if (ply.player.team == 'traitor'){
-				let sentMessage = false;
-				var trTargetFilter = m => m.author.id === ply.member.user.id;
-				var trMessageController = new Discord.MessageCollector(ply.member.user.dmChannel, trTargetFilter);
-				while (sentMessage == false){
-					let msg = await trMessageController.next;
-					for (let ply2 of players){
-						if (ply2.player.role.name.toLowerCase() == msg.content.toLowerCase()){
-							sentMessage = true;
-							ply.player.target = ply2;
-							targetTbl.push(ply2);
-							ply.member.user.send(`Your target has been set as the ${ply2.player.role.name}`);
-						}
+				if (ply.player.role.name == 'Gambler'){
+					let tgt = players[Math.floor(Math.random()*players.length)];
+					while (tgt == ply || tgt.player.team == 'traitor' || tgt.player.role.name == 'Omniscient'){
+						tgt = players[Math.floor(Math.random()*players.length)];
 					}
+					ply.player.target = tgt;
 				}
+				ply.member.user.send(`Your target has been set as the ${ply.player.target.player.role.name}`);
+				targetTbl.push(ply.player.target);
 			}
 		}
 
@@ -256,7 +287,8 @@ class newGameCommand extends Command {
 			}
 		}
 
-	//===========================================================================
+//===========================================================================
+//	Setup Mission
 		globalThis.leader = 0;
 		globalThis.partner = 0;
 		globalThis.pollenated = 0;
@@ -295,10 +327,6 @@ class newGameCommand extends Command {
 //=================================================================================================================			
 				
 				
-				let Marketeer;
-				let Misinformant;
-				let MarketeerTarget;
-				let Sleuth;
 				for (let ply of players){
 					if (ply.player.role.name == 'Capital Bee'){
 						Marketeer = ply;
@@ -314,6 +342,10 @@ class newGameCommand extends Command {
 						Sleuth = ply;
 						ply.member.user.send(`Type the display name of a player in a separate message **before** you type your influence number. You will learn the allegience of this player.`);
 					}
+					if (ply.player.role.name == 'Gambler' && !ply.player.role.used){
+						Gambler = ply;
+						ply.membere.user.send(`Type \`Randomise\` in a separate message **before** you type in your influence number if you wish to randomise your target.`);
+					}
 					await ply.member.user.send(`You currently have ${ply.player.influence} influence. How much would you like to spend?`)
 				}
 
@@ -325,8 +357,8 @@ class newGameCommand extends Command {
 						if (!isNaN(msg.content) && msg.author == ply.member.user){
 							done++;
 						} else{
-							let f = m => m.author.id === ply.member.id;
-							let inflController = new Discord.MessageCollector(ply.member.user.dmChannel, f);
+							let fl = m => m.author.id === ply.member.id;
+							let inflController = new Discord.MessageCollector(ply.member.user.dmChannel, fl);
 							msg = await inflController.next;
 						}
 					}
@@ -350,23 +382,44 @@ class newGameCommand extends Command {
 				}
 				if (Marketeer){
 					let msgArr = Marketeer.member.user.dmChannel.messages.cache.array();
-					let msg = msgArr[msgArr.length-2];
-					for (let ply of players){
-						if (ply.member.displayName.toLowerCase() == msg.content.toLowerCase()){
-							MarketeerTarget = ply;
+					for (let i = msgArr.length-1; i> 0; i--){
+						if (msgArr[i].content.startsWith('Type the display') && msgArr[i].author != Marketeer.member.user) break;
+						for (let ply of players){
+							if (ply.member.displayName.toLowerCase() == msgArr[i].content.toLowerCase()){
+								MarketeerTarget = ply;
+								break;
+							}
+						}
+					}
+				}
+				if (Gambler){
+					let msgArr = Gambler.member.user.dmChannel.messages.cache.array();
+					for (let i = msgArr.length-1; i>0;i--){
+						if (msgArr[i].content.toLowerCase() == 'randomise'){
+							let tgt = players[Math.floor(Math.random()*players.length)];
+							while (tgt == ply || tgt.player.team == 'traitor' || tgt.player.role.name == 'Omniscient' || tgt == Gambler.player.target){
+								tgt = players[Math.floor(Math.random()*players.length)];
+							}
+							ply.player.target = tgt;
+							Gambler.player.role.used = true;
+							Gambler = null;
+							break;
 						}
 					}
 				}
 				if (Misinformant){
 					let msgArr = Misinformant.member.user.dmChannel.messages.cache.array();
-					let msg = msgArr[msgArr.length-2];
-					msg = msg.content.toLowerCase();
-					for (let ply of players){
-						if (ply.member.displayName.toLowerCase() == msg){
-							if (MisinformantTarget){
-								if (msg != MisinformantTarget.member.displayName.toLowerCase()) MisinformantTarget = ply;
-								else MisinformantTarget = null;
-							} else MisinformantTarget = ply;
+					for (let i = msgArr.length-1;i>0;i--){
+						msg = msgArr[i].content.toLowerCase();
+						if (msg.startsWith ('type the display') && msgArr[i].author != Misinformant.member.user) break;
+						for (let ply of players){
+							if (ply.member.displayName.toLowerCase() == msg){
+								if (MisinformantTarget){
+									if (msg != MisinformantTarget.member.displayName.toLowerCase()) MisinformantTarget = ply;
+									else MisinformantTarget = null;
+								} else MisinformantTarget = ply;
+								break;
+							}
 						}
 					}
 				}
@@ -440,8 +493,8 @@ class newGameCommand extends Command {
 							if ((msg.content.toLowerCase() == 'yes' || msg.content.toLowerCase() == 'no') && msg.author == ply.member.user){
 								done++;
 							} else {
-								let f = m => m.author.id === ply.member.id;
-								let voteController = new Discord.MessageCollector(ply.member.user.dmChannel, f);
+								let fl = m => m.author.id === ply.member.id;
+								let voteController = new Discord.MessageCollector(ply.member.user.dmChannel, fl);
 								msg = await voteController.next;
 							}
 						}
@@ -548,15 +601,7 @@ class newGameCommand extends Command {
 				for (let card of discardPile){ //put discards back into the deck
 					drawPile.push(card);
 				}
-
-				let tempArr = [];
-				while (drawPile.length > 0){ //Shuffle the deck
-					let k = Math.floor(Math.random()*drawPile.length);
-					let v = drawPile[k];
-					drawPile.splice(k,1);
-					tempArr.push(v);
-				}
-				drawPile = [...tempArr];
+				drawPile = f.ArrRandomise(drawPile); //Shuffle the deck
 			}
 			if (leader.player.role.name == 'Strategist' && drawPile.length != 3) shouldDraw = 4;
 			if (leader.player.role.name == 'Veteran' && partner.player.role.name != 'Fumble Bee'){
