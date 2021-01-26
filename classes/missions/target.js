@@ -24,7 +24,7 @@ class Target extends Mission{
             }
         }
 
-        channel.send(`${rdmPlayer.member.user} is not a target.`);
+        channel.send(`${rdmPlayer.player.role.name} is not a target.`);
 		return 
 	}
 

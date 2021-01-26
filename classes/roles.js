@@ -10,7 +10,7 @@ module.exports = {
 			used: false
 		},
 		{
-			name: 'Marketeer',
+			name: 'Capital Bee',
 			description: 'Add four influence to any players total when determining team leader.'
 		},
 		{
@@ -22,10 +22,6 @@ module.exports = {
 			description: 'Knows one innocents role.'
 		},
 		{
-			name: 'Strategist',
-			description: 'As leader, draw 4 cards, choose one to discard and one to place on top of the draw pile.'
-		},
-		{
 			name: 'Researcher',
 			description: 'Know all roles that are in the game.'
 		},
@@ -34,12 +30,17 @@ module.exports = {
 			description: 'Leader always draws at least one success card while you\'re the partner (if possible).'
 		},
 		{
-			name: 'Salvager',
-			description: 'As leader, draw an extra card from the discard pile, then discard two cards.'
-		},
-		{
 			name: 'Two Bees in a Trenchcoat',
 			description: 'Your votes count twice.'
+		},
+		{
+			name: 'Double-Agent',
+			description: 'Knows one innocent and one traitor, but not which way round.',
+			traitors: 2
+		},
+		{
+			name: 'Omniscient',
+			description: 'Knows all traitors, but the traitors also win if they sting you.'
 		},
 		{
 			name: 'Insider',
@@ -47,9 +48,16 @@ module.exports = {
 			traitors: 2
 		},
 		{
-			name: 'Double-Agent',
-			description: 'Knows one innocent and one traitor, but not which way round.',
-			traitors: 2
+			name: 'Strategist',
+			description: 'As leader, draw 4 cards, choose one to discard and one to place on top of the draw pile.'
+		},
+		{
+			name: 'Salvager',
+			description: 'As leader, draw an extra card from the discard pile, then discard two cards.'
+		},
+		{
+			name: 'Sleuth',
+			description: 'Every third mission you may learn a chosen players allegience.'
 		}
 	],
 	traitor: [
@@ -84,6 +92,10 @@ module.exports = {
 			name: 'Dictator',
 			description: 'Votes cannot fail if you are chosen as the partner.',
 			traitors: 2
+		},
+		{
+			name: 'Gambler',
+			description: 'Your target is randomised. You may re-randomise your target once per game.'
 		}
 	]
 };

@@ -3,7 +3,7 @@ const Mission = require('../Mission');
 class Investigate extends Mission{
 	constructor(){
 		super({
-			name: 'Usurp Queen Bee',
+			name: 'Launch Assault on Opposing Hive',
 			successtext: 'Innocents win the game',
 			failtext: 'Traitors win the game'
 		})

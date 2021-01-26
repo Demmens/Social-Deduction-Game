@@ -19,8 +19,10 @@ class PollenateDandelion extends Mission{
 	}
 
 	fail(channel){
-		leader.player.influence -= 5;
-		if (leader.player.influence < 0) leader.player.influence = 0;
+		if (leader){
+			leader.player.influence -= 5;
+			if (leader.player.influence < 0) leader.player.influence = 0;
+		}
 		return;
 	}
 }

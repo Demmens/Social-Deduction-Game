@@ -8,8 +8,8 @@ class stingCommand extends Command {
 		});
     }
     async *args(message){
-        const player = yield{
-            type: memberMention,
+        var player = yield{
+            type: "memberMention",
             prompt: {
                 start: message => `${message.author} Mention the user you wish to sting.`,
                 retry: message => `${message.author} Mention a valid member.`,
@@ -24,13 +24,20 @@ class stingCommand extends Command {
                 stinger = ply;
                 plynum = x;
             }
+            if (ply.member == player){
+                player = ply;
+            }
             x++;
         }
+
 
         return {player, stinger, plynum}
     }
 	async exec(message, args) {
-        if (args.player == args.stinger.player.target) return message.channel.send(`**Traitors Win**`);
+        if (args.player == partner || args.player == leader) return message.channel.send(`You cannot sting while you're the leader or partner`)
+        if (args.player == args.stinger.player.target || args.player.player.role.name == 'Omniscient'){
+            return message.channel.send(`**Traitors Win**`);
+        }
         else{
             players.splice(args.plynum, 1);
             return message.channel.send(`The traitor stung incorrectly. The game may resume.`)

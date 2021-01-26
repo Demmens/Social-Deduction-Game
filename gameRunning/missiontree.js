@@ -27,27 +27,19 @@ module.exports = {
 					missionTree[8] = mission;
 				}
 				if (mission.name == 'Gather Armaments'){
-					missionTree[3] = mission;
+					missionTree[1] = mission;
+					missionTree[5] = mission;
 					missionTree[9] = mission;
 				}
 				if (mission.name == 'Hive Interrogation'){
-					missionTree[1] = mission;
+					missionTree[3] = mission;
 					missionTree[7]= mission;
-					missionTree[12] = mission;
 				}
-				if (mission.name == 'Create Backup Plan'){
+				if (mission.name == 'Launch Assault on Opposing Hive'){
 					missionTree[10] = mission;
-					missionTree[13] = mission;
-				}
-				if (mission.name == 'Usurp Queen Bee'){
-					missionTree[14] = mission;
-					missionTree[15] = mission;
-					missionTree[16] = mission;
-					missionTree[17] = mission;
-				}
-				if (mission.name == 'Investigate Possible Targets'){
-					missionTree[5] = mission;
 					missionTree[11] = mission;
+					missionTree[12] = mission;
+					missionTree[13] = mission;
 				}
 			}
 		}
