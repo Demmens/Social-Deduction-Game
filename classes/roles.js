@@ -57,7 +57,8 @@ module.exports = {
 		},
 		{
 			name: 'Sleuth',
-			description: 'Every third mission you may learn a chosen players allegience.'
+			description: 'Every third mission you may learn a chosen players allegience.',
+			traitors: 2
 		}
 	],
 	traitor: [
