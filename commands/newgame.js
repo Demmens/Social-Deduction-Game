@@ -3,13 +3,14 @@ const missiontree = require('../gameRunning/missiontree.js');
 var roles = require('../classes/roles');
 const Discord = require('discord.js');
 const f = require("../functions.js");
+const { traitor } = require("../classes/roles");
 
 //General Config
 const StartingInfluence = 8;
 const SuccessCards = 6;
 const FailCards = 12;
 const InfluenceRegen = 1;
-const innoRoleChoices = 12;
+const innoRoleChoices = 2;
 const traitorRoleChoices = 2;
 const influenceCost = 2;
 //Role Config
@@ -40,6 +41,11 @@ class newGameCommand extends Command {
 				} 
 			}
 		}
+		/*for (let [_,mems] of message.guild.members.cache){
+			if (mems.displayName == 'Dem' || mems.displayName == 'Stoatly'){
+				players.push({"member":mems});
+			}
+		}*/
 
 		players = f.ArrRandomise(players);
 		let x = 0;
@@ -86,8 +92,8 @@ class newGameCommand extends Command {
 		let roleChoices = [];
 
 		//Allow players to choose the role they want
+		x = 0;
 		for (let ply of players){
-			let i = 0;
 			let tbl;
 			let loops;
 			if (ply.player.team == 'innocent'){
@@ -102,17 +108,14 @@ class newGameCommand extends Command {
 				choices: []
 			}
 			let msg = '**Choose a Role**';
-			let x = 0;
 			for (let i = 0; i < loops; i++){
-				if (tbl.length > 0){
-					x++
-					let rand = Math.floor(Math.random()*tbl.length);
-					let role = tbl[rand];
-					tbl.splice(rand,1);
-					if (traitorCount >= role.traitors){
+				if (tbl.length > x){
+					let role = tbl[x];
+					if (traitorCount >= role.traitors || !role.traitors){
 						obj.choices.push(role); //Assign that role choice to the player.
-						msg += `\n${x} - ${role.name}: ${role.description}`
+						msg += `\n${i+1} - ${role.name}: ${role.description}`
 					} else i--;
+					x++
 				}
 			}
 			roleChoices.push(obj);
@@ -146,7 +149,7 @@ class newGameCommand extends Command {
 		}
 		{
 			for (let ply of players){
-				roleMsg += `\n${ply.player.role.name} - ${ply.player.role.description}`;
+				roleMsg += `\n${ply.player.role.name} (${ply.player.team}) - ${ply.player.role.description}`;
 			}
 		}
 //======================================================================
@@ -178,7 +181,7 @@ class newGameCommand extends Command {
 		let rejected = [];
 		for (let role of roles.innocent){
 			let roleExists = false;
-			for (let ply of playeres){
+			for (let ply of players){
 				if (ply.player.role.name == role.name) roleExists = true;
 			}
 			if (!roleExists){
@@ -193,17 +196,23 @@ class newGameCommand extends Command {
 			if (rl == 'Two Bees in a Trenchcoat'){
 				TwoBees = ply;
 				TwoBees.subroles = []
+				let rlMsg = '**Your roles are:**';
 				let i = 0;
 				let hasUsedRole = false;
 				for (let role of rejected){
 					if (i < 2){
 						if (hasUsedRole && role.used === false){
 							i--;
-						} else TwoBees.subroles.push(role.name);
+						} else{
+							TwoBees.subroles.push(role.name);
+							rlMsg += `\n${role.name}`;
+							if (role.used === false) hasUsedRole = true;
+						}
 					}
 					i++;
 				}
 				subRoles = TwoBees.subroles;
+				TwoBees.member.user.send(rlMsg);
 			}
 
 			if (rl == 'Spy' || subRoles.includes('Spy')) Spy = ply;
@@ -288,6 +297,7 @@ class newGameCommand extends Command {
 		let traitorsChoseTargets = false;
 		while (!traitorsChoseTargets){
 			let i = 0;
+			let sentMessage = 0;
 			for (let ply of players){
 				if (ply.player.team == 'traitor' && ply.player.role.name != 'Gambler'){
 					i++;

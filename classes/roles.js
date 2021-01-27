@@ -31,7 +31,8 @@ module.exports = {
 		},
 		{
 			name: 'Two Bees in a Trenchcoat',
-			description: 'Your votes count twice.'
+			description: 'You get two rejected roles.',
+			used: false
 		},
 		{
 			name: 'Double-Agent',
