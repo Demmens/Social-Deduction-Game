@@ -34,11 +34,11 @@ module.exports = {
 			description: 'You get two rejected roles.',
 			used: false
 		},
-		/*{
+		{
 			name: 'Double-Agent',
 			description: 'Knows one innocent and one traitor, but not which way round.',
 			traitors: 2
-		},*/
+		},
 		{
 			name: 'Omniscient',
 			description: 'Knows all traitors, but the traitors also win if they sting you.'
@@ -61,13 +61,18 @@ module.exports = {
 			description: 'Every third mission you may learn a chosen players allegience.',
 			traitors: 2
 		},
-		/*{
-			name: 'Prodigy',
-			description: 'Empowered Buzz: Buzz in secret, nobody votes, don\'t lose the game if wrong, but nobody can speak during the buzz.'
-		},*/
 		{
-			name: 'Instigator',
+			name: 'Prodigy',
+			description: 'Empowered Buzz (!prodigy command in DM channel): Buzz in secret, nobody votes, don\'t lose the game if wrong.',
+			traitors: 2
+		},
+		{
+			name: 'Inquisitor',
 			description: 'Has a random traitor role as a target. If they guess them correctly at any point during the game, that traitor is forced to use their sting. Otherwise, you lose this power.'
+		},
+		{
+			name: 'Auctioneer',
+			description: 'Instead of putting forth influence, outbid a chosen player by a selected number of influence (if you have enough)'
 		}
 	],
 	traitor: [
@@ -78,7 +83,7 @@ module.exports = {
 		},
 		{
 			name: 'Suppressor',
-			description: 'Set influence to 1 for any players total when determining team leader. May not pick the same player twice.'
+			description: 'Set influence to 1 for any players total when determining team leader. May not pick the same player twice in a row.'
 		},
 		{
 			name: 'Fumble Bee',
@@ -91,7 +96,7 @@ module.exports = {
 		},
 		{
 			name: 'Hypnotist',
-			description: 'Once per mission may type `autofail` when voting to automatically fail the vote. Your vote displays as `no`.',
+			description: 'Once per game may force the partner to play the wrong card (if they have a choice).',
 			used: false
 		},
 		{
@@ -100,17 +105,17 @@ module.exports = {
 		},
 		{
 			name: 'Dictator',
-			description: 'Votes cannot fail if you are chosen as the partner.',
+			description: 'Votes cannot fail if you are either the leader or partner.',
 			traitors: 2
 		},
 		{
 			name: 'Gambler',
 			description: 'Your target is randomised. You may re-randomise your target once per game.'
-		}
-		/*{
+		},
+		{
 			name: 'Plan Bee',
 			description: 'Chooses target after seeing other traitors targets',
 			traitors: 2
-		}*/
+		}
 	]
 };

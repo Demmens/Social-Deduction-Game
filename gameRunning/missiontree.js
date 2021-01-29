@@ -43,7 +43,7 @@ module.exports = {
 						missionTree[16] = mission;
 					}
 				}
-				if (playerCount == 4){
+				if (playerCount <= 4){
 					if (mission.name == 'Gather Armaments'){
 						missionTree[0] = mission;
 						missionTree[2] = mission;
