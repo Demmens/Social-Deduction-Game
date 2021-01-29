@@ -3,9 +3,9 @@ const Mission = require('../Mission');
 class PollenateLavender extends Mission{
 	constructor(){
 		super({
-			name: 'Pollenate Lavender',
-			successtext: 'Pollenating 3 times results in a victory',
-			failtext: 'Add two Fail cards to the discard pile'
+			name: 'Secure Lavender Field',
+			successtext: 'Securing 3 fields results in an innocent victory.',
+			failtext: 'Cancel next mission success effect'
 		})
 	}
 
@@ -19,8 +19,7 @@ class PollenateLavender extends Mission{
 	}
 
 	fail(channel){
-		discardPile.push('Fail');
-		discardPile.push('Fail');
+		successEffect = false;
 		return;
 	}
 }

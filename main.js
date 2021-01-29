@@ -28,25 +28,12 @@ class MyClient extends AkairoClient {
 				}
 			}
 		);
-		this.commandHandler.resolver.addType('gameName', (message, string) => {
-			if (!string) return null;
-			if (string.length >= 100) return null;
-			for (let role of message.guild.roles.cache) {
-				//Check that role doesn't already exist
-				if (func.replaceHyphens(role[1].name.toUpperCase()) == func.replaceHyphens(string.toString().toUpperCase())){
-					return null;
-				}			
+		this.commandHandler.resolver.addType('playername', (message, string) => {
+			let isPlayer = false;
+			for (let ply of players){
+				if (string.toLowerCase() == ply.member.displayName.toLowerCase()) isPlayer = true;
 			}
-			return string;
-		});
-		this.commandHandler.resolver.addType('yes/no', (message, string) => {
-			if (string.toUpperCase() == 'YES' || string.toUpperCase() == 'NO'){
-				return string;
-			}
-			return null;
-		});
-		this.commandHandler.resolver.addType('text/voice', (message, string) => {
-			if (string.toUpperCase() == 'TEXT' || string.toUpperCase() == 'VOICE'){
+			if (isPlayer){
 				return string;
 			}
 			return null;

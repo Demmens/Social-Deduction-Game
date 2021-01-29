@@ -34,11 +34,11 @@ module.exports = {
 			description: 'You get two rejected roles.',
 			used: false
 		},
-		{
+		/*{
 			name: 'Double-Agent',
 			description: 'Knows one innocent and one traitor, but not which way round.',
 			traitors: 2
-		},
+		},*/
 		{
 			name: 'Omniscient',
 			description: 'Knows all traitors, but the traitors also win if they sting you.'
@@ -50,7 +50,7 @@ module.exports = {
 		},
 		{
 			name: 'Strategist',
-			description: 'As leader, draw 4 cards, choose one to discard and one to place on top of the draw pile.'
+			description: 'As leader, draw an extra card, choose one to discard and one to place on top of the draw pile.'
 		},
 		{
 			name: 'Salvager',
@@ -60,6 +60,14 @@ module.exports = {
 			name: 'Sleuth',
 			description: 'Every third mission you may learn a chosen players allegience.',
 			traitors: 2
+		},
+		/*{
+			name: 'Prodigy',
+			description: 'Empowered Buzz: Buzz in secret, nobody votes, don\'t lose the game if wrong, but nobody can speak during the buzz.'
+		},*/
+		{
+			name: 'Instigator',
+			description: 'Has a random traitor role as a target. If they guess them correctly at any point during the game, that traitor is forced to use their sting. Otherwise, you lose this power.'
 		}
 	],
 	traitor: [
@@ -99,5 +107,10 @@ module.exports = {
 			name: 'Gambler',
 			description: 'Your target is randomised. You may re-randomise your target once per game.'
 		}
+		/*{
+			name: 'Plan Bee',
+			description: 'Chooses target after seeing other traitors targets',
+			traitors: 2
+		}*/
 	]
 };

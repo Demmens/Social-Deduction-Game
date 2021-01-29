@@ -3,15 +3,14 @@ const missiontree = require('../gameRunning/missiontree.js');
 var roles = require('../classes/roles');
 const Discord = require('discord.js');
 const f = require("../functions.js");
-const { traitor } = require("../classes/roles");
 
 //General Config
 const StartingInfluence = 8;
-const SuccessCards = 6;
-const FailCards = 12;
+const SuccessCards = 3;
+const FailCards = 7;
 const InfluenceRegen = 1;
-const innoRoleChoices = 2;
-const traitorRoleChoices = 2;
+const innoRoleChoices = 23;
+const traitorRoleChoices = 3;
 const influenceCost = 2;
 //Role Config
 const CapitalBeeStrength = 4;
@@ -26,6 +25,7 @@ class newGameCommand extends Command {
 		});
 	}
 	async exec(message, args) {
+		globalThis.gameChannel = message.channel;
 		globalThis.successEffect = true;
 		globalThis.failEffect = true;
 		globalThis.players = [];
@@ -92,6 +92,8 @@ class newGameCommand extends Command {
 		let roleChoices = [];
 
 		//Allow players to choose the role they want
+		let innoNum = 0;
+		let trNum = 0;
 		x = 0;
 		for (let ply of players){
 			let tbl;
@@ -99,9 +101,11 @@ class newGameCommand extends Command {
 			if (ply.player.team == 'innocent'){
 				tbl = roles.innocent;
 				loops = innoRoleChoices;
+				x = innoNum
 			} else {
 				tbl = roles.traitor;
 				loops = traitorRoleChoices;
+				x = trNum;
 			}
 			let obj = {
 				player: ply,
@@ -120,6 +124,8 @@ class newGameCommand extends Command {
 			}
 			roleChoices.push(obj);
 			await ply.member.user.send(msg);
+			if (ply.player.team == 'traitor') trNum = x;
+			else innoNum = x;
 		}
 		//Wait until everyone has chosen their role
 		let allPicked = false;
@@ -168,6 +174,7 @@ class newGameCommand extends Command {
 		globalThis.Strategist = null;
 		globalThis.Salvager = null;
 		globalThis.Sleuth = null;
+		globalThis.Instigator = null;
 
 		globalThis.Gambler = null;
 		globalThis.Suppressor = null;
@@ -177,6 +184,7 @@ class newGameCommand extends Command {
 		globalThis.Hypnotist = null;
 		globalThis.Psychic = null;
 		globalThis.Dictator = null;
+		globalThis.PlanBee = null;
 
 		let rejected = [];
 		for (let role of roles.innocent){
@@ -201,11 +209,11 @@ class newGameCommand extends Command {
 				let hasUsedRole = false;
 				for (let role of rejected){
 					if (i < 2){
-						if (hasUsedRole && role.used === false){
+						if (hasUsedRole && role.used === false && role.traitors <= traitorCount){
 							i--;
 						} else{
 							TwoBees.subroles.push(role.name);
-							rlMsg += `\n${role.name}`;
+							rlMsg += `\n${role.name} - ${role.description}`;
 							if (role.used === false) hasUsedRole = true;
 						}
 					}
@@ -228,6 +236,7 @@ class newGameCommand extends Command {
 			if (rl == 'Strategist' || subRoles.includes('Strategist')) Strategist = ply;
 			if (rl == 'Salvager' || subRoles.includes('Salvager')) Salvager = ply;
 			if (rl == 'Sleuth' || subRoles.includes('Sleuth')) Sleuth = ply;
+			if (rl == 'Instigator' || subRoles.includes('Instigator')) Instigator = ply;
 			
 			if (rl == 'Gambler') Gambler = ply;
 			if (rl == 'Suppressor') Suppressor = ply;
@@ -237,12 +246,22 @@ class newGameCommand extends Command {
 			if (rl == 'Hypnotist') Hypnotist = ply;
 			if (rl == 'Psychic') Psychic = ply;
 			if (rl == 'Dictator') Dictator = ply;
+			if (rl == 'Plan Bee') PlanBee = ply;
 		}
 //===========================================================================
 //		Tell traitors which roles are in the game
 		message.channel.send(`Traitors are deciding their targets.`);
 		let targetTbl = [];
 		if (Researcher) Researcher.member.user.send(roleMsg);
+
+		if (Instigator){
+			let tgt = players[Math.floor(Math.random()*players.length)];
+			while (tgt.player.team != 'traitor'){
+				tgt = players[Math.floor(Math.random()*players.length)];
+			}
+			Instigator.member.user.send(`Your target is the ${tgt.player.role.name}. Type !instigate in the DM channel when you know who has that role.`);
+			Instigator.player.target = tgt;
+		}
 
 		if (DoubleAgent){
 			let hasTraitor = false;
@@ -255,10 +274,11 @@ class newGameCommand extends Command {
 					hasInnocent = true;
 					plyTbl.push(tgt);
 				}
-				else if(tgt.player.team == 'traitor' && !hasTraitor){
+				else if (tgt.player.team == 'traitor' && !hasTraitor){
 					hasTraitor = true;
 					plyTbl.push(tgt);
 				} 
+				console.log(plyTbl);
 			}
 			
 			let x = Math.floor(Math.random()*2); //x is either 1 or 0
@@ -284,11 +304,11 @@ class newGameCommand extends Command {
 		if (Detective){
 			let tgt = players[Math.floor(Math.random()*players.length)];
 			while ((tgt.player.team == 'traitor' || tgt == Detective) && players.length > 1) tgt = players[Math.floor(Math.random()*players.length)];
-			Detective.member.user.send(`${tgt.member.displayName} is a ${tgt.player.role.name}`);
+			Detective.member.user.send(`${tgt.member.displayName} is a ${tgt.player.role.name}: ${tgt.player.role.description}`);
 		}
 
 		for (let ply of players){
-			if (ply.player.team == 'traitor'){ //Traitors set Targets
+			if (ply.player.team == 'traitor' && ply != Gambler){ //Traitors set Targets
 				ply.member.user.send(roleMsg + `\n**Type the name of the role you wish to make your target.**`); 
 			}
 		}
@@ -299,7 +319,7 @@ class newGameCommand extends Command {
 			let i = 0;
 			let sentMessage = 0;
 			for (let ply of players){
-				if (ply.player.team == 'traitor' && ply.player.role.name != 'Gambler'){
+				if (ply.player.team == 'traitor' && ply != Gambler && ply != PlanBee){
 					i++;
 					let msg = ply.member.user.dmChannel.lastMessage;
 					let tgtChosen = false;
@@ -326,6 +346,28 @@ class newGameCommand extends Command {
 				tgt = players[Math.floor(Math.random()*players.length)];
 			}
 			Gambler.player.target = tgt;
+		}
+
+		if (PlanBee){
+			let tgtMsg = '**Traitor Targets**'
+			for (let ply of players){
+				if (ply.player.team == 'traitor'){
+					tgtMsg += `\n${ply.player.target.player.role.name}`;
+				}
+			}
+			PlanBee.member.user.send(tgtMsg);
+			let PlanBeeChoseTarget = false;
+			while (!PlanBeeChoseTarget){
+				var trTargetFilter = m => m.author.id === PlanBee.member.user.id;
+				var trMessageController = new Discord.MessageCollector(PlanBee.member.user.dmChannel, trTargetFilter);
+				let msg = await trMessageController.next;
+				for (let ply of players){
+					if (ply.player.role.name.toLowerCase() == msg.content.toLowerCase()){
+						PlanBee.player.target = ply;
+						PlanBeeChoseTargetChosen = true;
+					}
+				}
+			}
 		}
 
 		for (let ply of players){
@@ -377,6 +419,7 @@ class newGameCommand extends Command {
 //=================================================================================================================			
 				
 				if (missionNum % SleuthTimer == 0 && missionNum != 0 && Sleuth){
+					Sleuth.player.role.used = false;
 					Sleuth.member.user.send(`Type the display name of a player in a separate message **before** you type your influence number. You will learn the allegience of this player.`);
 				}
 				if (CapitalBee){
@@ -388,7 +431,10 @@ class newGameCommand extends Command {
 					Suppressor.member.user.send(msg);
 				}
 				if (Gambler){
-					Gambler.member.user.send(`Type \`Randomise\` in a separate message **before** you type in your influence number if you wish to randomise your target.`);
+					if (!Gambler.player.role.used) Gambler.member.user.send(`Type \`Randomise\` in a separate message **before** you type in your influence number if you wish to randomise your target.`);
+				}
+				if (Instigator){
+					if (!Instigator.player.role.used) Instigator.member.user.send(`Type the display name of the player you think is your target in a separate message **before** you type in your influence number if you wish to guess.`)
 				}
 
 				for (let ply of players){
@@ -411,21 +457,24 @@ class newGameCommand extends Command {
 					if (done == players.length) influenceDone = true;
 				}
 				if (Sleuth){
-					let arr = Defender.member.user.dmChannel.messages.cache.array();
-					for (let i = arr.length-1; i > 0; i--){
-						let msg = arr[i];
-						if (msg.content.startsWith('Type the display name of a player') && msg.author != Defender.member.user) break;
-						for (let ply of players){
-							if (ply.member.displayName.toLowerCase() == msg.content.toLowerCase()){
-								Sleuth = null;
-								let tmName = 'innocent'
-								if (ply.player.team == 'traitor') tmName = 'a traitor'
-								Sleuth.member.user.send(`${ply.member.displayName} is ${tmName}`);
+					if (!Sleuth.player.role.used){
+						let arr = Sleuth.member.user.dmChannel.messages.cache.array();
+						for (let i = arr.length-1; i > 0; i--){
+							let msg = arr[i];
+							if (msg.content.startsWith('Type the display name of a player') && msg.author != Sleuth.member.user) break;
+							for (let ply of players){
+								if (ply.member.displayName.toLowerCase() == msg.content.toLowerCase()){
+									Sleuth.player.role.used = true;
+									let tmName = 'innocent'
+									if (ply.player.team == 'traitor') tmName = 'a traitor'
+									Sleuth.member.user.send(`${ply.member.displayName} is ${tmName}`);
+								}
 							}
+							if (Sleuth.player.role.used) break;
 						}
-						if (!Sleuth) break;
 					}
 				}
+
 				if (CapitalBee){
 					let msgArr = CapitalBee.member.user.dmChannel.messages.cache.array();
 					for (let i = msgArr.length-1; i> 0; i--){
@@ -444,10 +493,11 @@ class newGameCommand extends Command {
 						for (let i = msgArr.length-1; i>0;i--){
 							if (msgArr[i].content.toLowerCase() == 'randomise'){
 								let tgt = players[Math.floor(Math.random()*players.length)];
-								while ((tgt == ply || tgt.player.team == 'traitor' || tgt == Omniscient || tgt == Gambler.player.target) && players.length != 1){
+								while ((tgt == Gambler || tgt.player.team == 'traitor' || tgt == Omniscient || tgt == Gambler.player.target) && players.length != 1){
 									tgt = players[Math.floor(Math.random()*players.length)];
 								}
-								ply.player.target = tgt;
+								Gambler.player.target = tgt;
+								Gambler.member.user.send(`Your target is now the ${tgt.player.role.name}`);
 								Gambler.player.role.used = true;
 								break;
 							}

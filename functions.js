@@ -8,5 +8,12 @@ module.exports = {
 			tempArr.push(v);
 		}
 		return tempArr; //Return shuffled array
-    }
+	},
+	
+	isRole(player, role, roleStr){
+		if ((player.role.name == 'roleStr' || player.role.name == 'Two Bees in a Trenchcoat') && player == role){
+			return true;
+		}
+		return false;
+	}
 }

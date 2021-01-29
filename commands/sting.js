@@ -34,7 +34,6 @@ class stingCommand extends Command {
         return {player, stinger, plynum}
     }
 	async exec(message, args) {
-        if (args.player == partner || args.player == leader) return message.channel.send(`You cannot sting while you're the leader or partner`)
         if (args.player == args.stinger.player.target || args.player == Omniscient){
             return message.channel.send(`**Traitors Win**`);
         }

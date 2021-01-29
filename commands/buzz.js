@@ -31,7 +31,6 @@ class buzzCommand extends Command {
                     prompt: true
                 }
             }
-
             accusedMembers.push(target);
         }
         
@@ -41,19 +40,28 @@ class buzzCommand extends Command {
                 buzzer = ply;
             }
             for (let tgt of accusedMembers){
-                if (ply.member == tgt.member){
+                if (ply.member == tgt){
                     accused.push(ply);
                 }
             }
         }
 
-        return {accused, buzzer, plynum}
+        return {accused, buzzer, traitors}
     }
 	async exec(message, args) {
         var shouldWin = true; //Default is that innocents should win
+        let accusedMsg = '';
         for (let tgt of args.accused){
+            accusedMsg += `\n${tgt.member.user}`;
             if (tgt.player.team == 'innocent') shouldWin = false; //If any of the players accused is an innocent then traitors win.
         }
+
+        let emb = new Discord.MessageEmbed()
+        .setTitle(`**Accused Players**`)
+        .setDescription(accusedMsg);
+
+        await message.channel.send(emb);
+        await message.channel.send(`Everyone who is not accused must now direct message the bot with \`yes\` or \`no\`.`);
 
         let voteDone = false;
         let finalVotes;
@@ -75,16 +83,16 @@ class buzzCommand extends Command {
                     }
                 }
             }
-            if (done == players.length) voteDone = true;
+            if (done == players.length - args.traitors.length) voteDone = true;
         }
         let votePassed = true;
         let voteMsg = '';
         for (let vote of finalVotes){
-            voteMsg += `\n${vote.player.member.displayName} -  ${vote.vote}`;
+            voteMsg += `\n${vote.player.member.user} -  ${vote.vote}`;
             if (vote.vote == 'no') votePassed = false;//If anyone at all votes no, the vote fails.
         } 
 
-        let emb = new Discord.MessageEmbed()
+        emb = new Discord.MessageEmbed()
         .setTitle(`**Votes**`)
         .setDescription(voteMsg);
         await message.channel.send(emb);
@@ -93,7 +101,7 @@ class buzzCommand extends Command {
         return await setTimeout(function(){
             if (shouldWin) return message.channel.send(`The vote was correct. **INNOCENTS WIN**`);
             return message.channel.send(`The vote was incorrect. **TRAITORS WIN**`);
-        }, 4000);   
+        }, 5000);   
 	}	
 }
 
