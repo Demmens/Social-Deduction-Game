@@ -12,64 +12,84 @@ for (let file of dir){
 module.exports = {
 	findTree: function(playerCount){
 		var missionTree = [];
-
+		globalThis.SecureDaisyField = null;
+		globalThis.SecureDaffodilField = null;
+		globalThis.SecureDandelionField = null;
+		globalThis.SecureLavenderField = null;
+		globalThis.GatherArmaments = null;
+		globalThis.SpreadPropoganda = null;
+		globalThis.HiveInterrogation = null;
+		globalThis.CreateBackupPlan = null;
+		globalThis.SourceIntelligence = null;
+		globalThis.RescueOperatives = null;
+		globalThis.LaunchAssaultOnOpposingHive = null;
+		globalThis.SuspendAgents = null;
+		for (let mission of missions){
+			if (mission.name == 'Secure Daisy Field') SecureDaisyField = mission;
+			if (mission.name == 'Secure Daffodil Field') SecureDaffodilField = mission;
+			if (mission.name == `Secure Dandelion Field`) SecureDandelionField = mission;
+			if (mission.name == 'Secure Lavender Field') SecureLavenderField = mission;
+			if (mission.name == 'Gather Armaments') GatherArmaments = mission;
+			if (mission.name == 'Spread Propoganda') SpreadPropoganda = mission;
+			if (mission.name == 'Hive Interrogation') HiveInterrogation = mission;
+			if (mission.name == 'Create Backup Plan') CreateBackupPlan = mission;
+			if (mission.name == 'Source Intelligence') SourceIntelligence = mission;
+			if (mission.name == 'Rescue Operatives') RescueOperatives = mission;
+			if (mission.name == 'Suspend Agents') SuspendAgents = mission;
+			if (mission.name == 'Launch Assault on Opposing Hive') LaunchAssaultOnOpposingHive = mission;
+		}
 		if (playerCount){
-			for (let mission of missions){
-				if (playerCount != 4){
-					if (mission.name == 'Secure Dandelion Field'){
-						missionTree[1] = mission;
-						missionTree[6] = mission;
-					}
-					if (mission.name == 'Secure Daffodil field'){
-						missionTree[5] = mission;
-						missionTree[8] = mission;
-					}
-					if (mission.name == 'Gather Armaments'){
-						missionTree[0] = mission;
-						missionTree[2] = mission;
-						missionTree[4] = mission;
-					}
-					if (mission.name == 'Hive Interrogation'){
-						missionTree[3] = mission;
-						missionTree[7]= mission;
-					}
-					if (mission.name == 'Create Backup Plan'){
-						missionTree[12] = mission;
-					}
-					if (mission.name == 'Launch Assault on Opposing Hive'){
-						missionTree[13] = mission;
-						missionTree[14] = mission;
-						missionTree[15] = mission;
-						missionTree[16] = mission;
-					}
-				}
-				if (playerCount <= 4){
-					if (mission.name == 'Gather Armaments'){
-						missionTree[0] = mission;
-						missionTree[2] = mission;
-					}
-					if (mission.name == 'Spread Propoganda'){
-						missionTree[1] = mission;
-					}
-					if (mission.name == 'Secure Dandelion Field'){
-						missionTree[3] = mission;
-					}
-					if (mission.name == 'Secure Daisy Field'){
-						missionTree[4] = mission;
-					}
-					if (mission.name == 'Secure Daffodil Field'){
-						missionTree[5] = mission;
-					}
-					if (mission.name == 'Secure Lavender Field'){
-						missionTree[6] = mission;
-					}
-					if (mission.name == 'Launch Assault on Opposing Hive'){
-						missionTree[7] = mission;
-						missionTree[8] = mission;
-						missionTree[9] = mission;
-						missionTree[10] = mission;
-					}
-				}
+			if (playerCount == 7 || playerCount == 8){
+				missionTree[0] = GatherArmaments;
+				missionTree[1] = SecureDandelionField;
+				missionTree[2] = GatherArmaments;
+				missionTree[3] = HiveInterrogation;
+				missionTree[4] = SecureDaffodilField;
+				missionTree[5] = GatherArmaments;
+				missionTree[6]= HiveInterrogation;
+				missionTree[7] = SecureDandelionField;
+				missionTree[8] = SpreadPropoganda;
+				missionTree[9] = SecureDaffodilField;
+				missionTree[10] = HiveInterrogation;
+				missionTree[11] = SecureLavenderField;
+				missionTree[12] = CreateBackupPlan;
+				missionTree[13] = LaunchAssaultOnOpposingHive;
+				missionTree[14] = LaunchAssaultOnOpposingHive;
+				missionTree[15] = LaunchAssaultOnOpposingHive;
+				missionTree[16] = LaunchAssaultOnOpposingHive;	
+			}
+			if (playerCount == 5 || playerCount == 6){
+				missionTree[0] = GatherArmaments;
+				missionTree[1] = SecureDaisyField;
+				missionTree[2] = GatherArmaments;
+				missionTree[3] = HiveInterrogation;
+				missionTree[4] = SpreadPropoganda;
+				missionTree[5] = SecureDaffodilField;
+				missionTree[6] = GatherArmaments;
+				missionTree[7] = SecureDandelionField;
+				missionTree[8] = HiveInterrogation;
+				missionTree[9] = SecureLavenderField;
+				missionTree[10] = LaunchAssaultOnOpposingHive;
+				missionTree[11] = LaunchAssaultOnOpposingHive;
+				missionTree[12] = LaunchAssaultOnOpposingHive;
+				missionTree[13] = LaunchAssaultOnOpposingHive;				
+			}
+			if (playerCount == 4){
+				missionTree[0] = GatherArmaments;
+				missionTree[1] = SpreadPropoganda;
+				missionTree[2] = GatherArmaments;	
+				missionTree[3] = SecureDandelionField;
+				missionTree[4] = SecureDaisyField;
+				missionTree[5] = SecureDaffodilField;
+				missionTree[6] = SecureLavenderField;
+				missionTree[7] = LaunchAssaultOnOpposingHive;
+				missionTree[8] = LaunchAssaultOnOpposingHive;
+				missionTree[9] = LaunchAssaultOnOpposingHive;
+				missionTree[10] = LaunchAssaultOnOpposingHive;
+			}
+			if (playerCount < 4){
+				missionTree[0] = SuspendAgents;
+				missionTree[1] = SuspendAgents;
 			}
 		}
 

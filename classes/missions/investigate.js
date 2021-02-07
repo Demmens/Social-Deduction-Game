@@ -38,7 +38,7 @@ class Investigate extends Mission{
 				while ((info == ply.player.target || info == ply) && players.length != 1){
 					info = players[Math.floor(Math.random()*players.length)];
 				}
-				ply.member.user.send(`${info.member.displayName} is the ${info.player.role.name}`);
+				ply.member.user.send(`${info.member.displayName} is not your target.`);
 			}
 		}
 	}

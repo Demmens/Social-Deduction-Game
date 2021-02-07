@@ -3,19 +3,24 @@ const missiontree = require('../gameRunning/missiontree.js');
 var roles = require('../classes/roles');
 const Discord = require('discord.js');
 const f = require("../functions.js");
+//=========================================
+//	Config
 
-//General Config
-const StartingInfluence = 8;
-const SuccessCards = 3;
-const FailCards = 7;
-const InfluenceRegen = 1;
-const innoRoleChoices = 7;
-const traitorRoleChoices = 5;
-const influenceCost = 2;
-//Role Config
-const CapitalBeeStrength = 4;
-const SleuthTimer = 3;
+// Setup
+const SuccessCards = 3; //Number of Succeed cards in the base deck
+const FailCards = 7; //Number of Fail cards in the base deck
+const innoRoleChoices = 3; //Amount of role choices innocents get
+const traitorRoleChoices = 3; //Amount of role choices traitors get
+// Influence
+const InfluenceRegen = 1; //How much influence you gain per turn
+const influenceCost = 2; //How much influence per player is required for a mission to go through.
+const baseInfluenceSpent = 0; //How much influence you lose if you put forth any amount of influence
+// Role
+const SuppressorNumber = 1; //How much influence a player is set to when suppressed
+const SleuthTimer = 3; //How many turns between Sleuth investigates
+
 //
+//=========================================
 
 class newGameCommand extends Command {
 	constructor() {
@@ -29,10 +34,10 @@ class newGameCommand extends Command {
 		globalThis.successEffect = true;
 		globalThis.failEffect = true;
 		globalThis.players = [];
+		globalThis.barredPlys = [];
 		var traitorCount = 0;
 		var innocentCount = 0;
 
-		let CapitalBeeTarget;
 		let SuppressorTarget;
 		for (let [_,chnl] of message.guild.channels.cache){
 			if (chnl.name == 'Game Chat'){
@@ -54,7 +59,6 @@ class newGameCommand extends Command {
 				ply.member.user.send(`You are a **Traitor**`);
 				ply.player = {
 					"team": "traitor",
-					"influence": StartingInfluence
 				};
 				traitorCount++;
 			}
@@ -62,14 +66,13 @@ class newGameCommand extends Command {
 				ply.member.user.send(`You are **Innocent**`);
 				ply.player = {
 					"team": "innocent",
-					"influence": StartingInfluence
 				};
 				innocentCount++;
 			}
 			x++
 		}
 		message.channel.send(`Starting a new game with ${players.length} players.`);
-		const missions = missiontree.findTree(players.length);
+		globalThis.missionOrder = missiontree.findTree(players.length);
 
 	//===========================================================================
 	//		Create the deck of cards to use for succeeding/failing the mission.
@@ -111,19 +114,18 @@ class newGameCommand extends Command {
 				player: ply,
 				choices: []
 			}
-			let msg = '**Choose a Role**';
+			await ply.member.user.send('**Choose a Role**');
 			for (let i = 0; i < loops; i++){
 				if (tbl.length > x){
 					let role = tbl[x];
 					if (traitorCount >= role.traitors || !role.traitors){
 						obj.choices.push(role); //Assign that role choice to the player.
-						msg += `\n${i+1} - ${role.name}: ${role.description}`
+						ply.member.user.send(f.createRoleEmbed(role, i+1));
 					} else i--;
 					x++
 				}
 			}
 			roleChoices.push(obj);
-			await ply.member.user.send(msg);
 			if (ply.player.team == 'traitor') trNum = x;
 			else innoNum = x;
 		}
@@ -155,6 +157,7 @@ class newGameCommand extends Command {
 		}
 		{
 			for (let ply of players){
+				ply.player.influence = ply.player.role.startingInfluence;
 				roleMsg += `\n${ply.player.role.name} (${ply.player.team}) - ${ply.player.role.description}`;
 			}
 		}
@@ -211,7 +214,7 @@ class newGameCommand extends Command {
 				rejected = f.ArrRandomise(rejected);
 				for (let role of rejected){
 					if (i < 2){
-						if (hasUsedRole && role.used === false && role.traitors <= traitorCount){
+						if ((hasUsedRole && role.used === false && role.traitors <= traitorCount) ||  (role.name == 'Omniscient' || role.name == 'Capital Bee')){
 							i--;
 						} else{
 							TwoBees.subroles.push(role.name);
@@ -261,10 +264,10 @@ class newGameCommand extends Command {
 
 		if (Inquisitor){
 			let tgt = players[Math.floor(Math.random()*players.length)];
-			while (tgt.player.team != 'traitor' || traitorCount == 0){
+			while (tgt.player.team != 'traitor' && traitorCount != 0){
 				tgt = players[Math.floor(Math.random()*players.length)];
 			}
-			Inquisitor.member.user.send(`Your target is the ${tgt.player.role.name}. Type !instigate in the DM channel when you know who has that role.`);
+			Inquisitor.member.user.send(`Your target is the ${tgt.player.role.name}. Type !inquisite in the DM channel when you know who has that role.`);
 			Inquisitor.player.target = tgt;
 		}
 
@@ -353,6 +356,7 @@ class newGameCommand extends Command {
 		await chooseTraitorTargets();
 
 		if (Gambler){
+			Gambler.member.user.send(roleMsg);
 			let tgt = players[Math.floor(Math.random()*players.length)];
 			while ((tgt == Gambler || tgt.player.team == 'traitor' || tgt == Omniscient) && players.length > 2){
 				tgt = players[Math.floor(Math.random()*players.length)];
@@ -389,6 +393,7 @@ class newGameCommand extends Command {
 				targetTbl.push(ply.player.target);
 			}
 		}
+
 		if (Insider){
 			let tgt = targetTbl[Math.floor(Math.random()*targetTbl.length)];
 			Insider.member.user.send(`One of the targets is the ${tgt.player.role.name}`);
@@ -399,8 +404,8 @@ class newGameCommand extends Command {
 		globalThis.leader = 0;
 		globalThis.partner = 0;
 		globalThis.pollenated = 0;
-		let missionNum = 1;
-		for (let mission of missions){
+		globalThis.missionNum = 1;
+		for (let mission of missionOrder){
 			let failedvote = true;
 			while (failedvote){
 				let inflTotal = 0;
@@ -416,14 +421,13 @@ class newGameCommand extends Command {
 					}
 					Psychic.member.user.send(msg);
 				}
-
-				message.channel.send(`**Mission ${missionNum}: ${mission.name}**\n\`\`\`Success Effect: ${mission.successtext}\nFail Effect: ${mission.failtext}\`\`\``);
-				let infMessage = '**Current influence totals**';
-				for (let ply of players){
-					infMessage += `\n${ply.member.user}: ${ply.player.influence}`
-				}
-				message.channel.send(infMessage);
+				if (mission.name.startsWith(`Secure `)) mission.name += ` (${pollenated}/3)`;
+				let missionEmbed = new Discord.MessageEmbed()
+				.setTitle(`**Mission ${missionNum}: ${mission.name}**`)
+				.setDescription(`**Success Effect**\n${mission.successtext}\n**Fail Effect**\n${mission.failtext}`)
+				message.channel.send(missionEmbed);
 				message.channel.send(`Draw Pile: ${drawPile.length}\nDiscard Pile: ${discardPile.length}`);
+				message.channel.send(`This mission requires ${Math.floor(influenceCost*players.length)} influence to start.`);
 				message.channel.send(`Direct message The Hive with the number of influence you wish to spend.`);
 
 //=================================================================================================================
@@ -432,34 +436,34 @@ class newGameCommand extends Command {
 				
 				if (missionNum % SleuthTimer == 0 && missionNum != 0 && Sleuth){
 					Sleuth.player.role.used = false;
-					Sleuth.member.user.send(`Type the display name of a player in a separate message **before** you type your influence number. You will learn the allegience of this player.`);
+					Sleuth.member.user.send(`Type the display name of a player in a separate message to your influence number. You will learn the allegience of this player.`);
 				}
-				if (CapitalBee){
-					CapitalBee.member.user.send(`Type the display name of a player in a separate message **before** you type your influence number, then that player will have ${CapitalBeeStrength} added to their influence this round.`);
-				}
-				if (Auctioneer){
-					Auctioneer.member.user.send(`In a separate message **before** you type your influence, type \`outbid X\` where X is the display name of the player you wish to outbid.\nYou will outbid this player by a number equal to the influence you put forth (if possible).`)
+				if (Auctioneer && !barredPlys.includes(Auctioneer)){
+					Auctioneer.member.user.send(`In a separate message to your influence, type \`outbid X\` where X is the display name of the player you wish to outbid.\nYou will outbid this player by a number equal to the influence you put forth (if possible).`)
 				}
 				if (Suppressor){
-					let msg = `Type the display name of a player in a separate message **before** you type your influence number, then that player will have their influence set to 1 this round.`;
+					let msg = `Type the display name of a player in a separate message to your influence number, then that player will have their influence set to ${SuppressorNumber} this round.`;
 					if (SuppressorTarget) msg += ` Your last target was **${SuppressorTarget.member.displayName}**`;
 					Suppressor.member.user.send(msg);
 				}
 				if (Gambler){
-					if (!Gambler.player.role.used) Gambler.member.user.send(`Type \`Randomise\` in a separate message **before** you type in your influence number if you wish to randomise your target.`);
+					if (!Gambler.player.role.used) Gambler.member.user.send(`Type \`Randomise\` in a separate message to your influence number if you wish to randomise your target.`);
 				}
-				if (Inquisitor){
-					if (!Inquisitor.player.role.used) Inquisitor.member.user.send(`Type the display name of the player you think is your target in a separate message **before** you type in your influence number if you wish to guess.`)
-				}
-
+				let canInfluenceVote = [];
 				for (let ply of players){
+					if (!barredPlys.includes(ply)) canInfluenceVote.push(ply);
+				}
+				for (let ply of canInfluenceVote){
 					await ply.member.user.send(`You currently have ${ply.player.influence} influence. How much would you like to spend?`)
+				}
+				for (let ply of barredPlys){
+					await ply.member.user.send(`You are barred from putting forth influence this round.`)
 				}
 
 				let influenceDone = false;
 				while (!influenceDone){
 					let done = 0;
-					for (let ply of players){
+					for (let ply of canInfluenceVote){
 						let msg = ply.member.user.dmChannel.lastMessage;
 						if (!isNaN(msg.content) && msg.author == ply.member.user){
 							done++;
@@ -469,7 +473,7 @@ class newGameCommand extends Command {
 							msg = await inflController.next;
 						}
 					}
-					if (done == players.length) influenceDone = true;
+					if (done == canInfluenceVote.length) influenceDone = true;
 				}
 				if (Sleuth){
 					if (!Sleuth.player.role.used){
@@ -486,19 +490,6 @@ class newGameCommand extends Command {
 								}
 							}
 							if (Sleuth.player.role.used) break;
-						}
-					}
-				}
-
-				if (CapitalBee){
-					let msgArr = CapitalBee.member.user.dmChannel.messages.cache.array();
-					for (let i = msgArr.length-1; i> 0; i--){
-						if (msgArr[i].content.startsWith('Type the display') && msgArr[i].author != CapitalBee.member.user) break;
-						for (let ply of players){
-							if (ply.member.displayName.toLowerCase() == msgArr[i].content.toLowerCase()){
-								CapitalBeeTarget = ply;
-								break;
-							}
 						}
 					}
 				}
@@ -554,7 +545,7 @@ class newGameCommand extends Command {
 
 				let votes = [];
 				let totalInfluence = 0;
-				for (let ply of players){
+				for (let ply of canInfluenceVote){
 					let msg = ply.member.user.dmChannel.lastMessage;
 					let num = msg.content;
 					if (msg.author != ply.member.user) num = 0 //If the last message was from the bot, assumemd to not spend any influence.
@@ -564,8 +555,7 @@ class newGameCommand extends Command {
 					if (num < 0) num = 0;
 					let influenceSpent = num;
 					totalInfluence += num;
-					if (ply == SuppressorTarget) num = 1;
-					if (ply == CapitalBeeTarget) num += CapitalBeeStrength; //Account for role shenanigans
+					if (ply == SuppressorTarget) num = SuppressorNumber; //Account for role shenanigans
 					votes.push({player: ply, influence: num, influenceSpent: influenceSpent});
 				}
 
@@ -579,9 +569,8 @@ class newGameCommand extends Command {
 									if (influence > Auctioneer.player.influence) influence = Auctioneer.player.influence; //Can't spend more influence than they have
 									if (influence < 0) influence = 0; //Can't spend less than 0 influence
 									vote.influenceSpent = influence; //They spend that much influence
+									vote.influence = influence;
 									totalInfluence += influence;
-									if (Auctioneer == CapitalBeeTarget) influence += CapitalBeeStrength; //Now account for capital bee
-									vote.influence = influence; //Influence total accounts for capital bee.
 								}
 							}
 						}
@@ -589,24 +578,41 @@ class newGameCommand extends Command {
 				}
 
 				votes.sort(function(a,b){return b.influence - a.influence})
-				let msg = '';
-				let hasLeader = false;
 				let notEnoughInfluence = false;
-				for (let vote of votes){
-					let isTied = false;
-					for (let vote2 of votes){ //Leader is the person with the highest unique influence vote.
-						if (vote.influence == vote2.influence && vote != vote2){
-							isTied = true;
-							break;
-						}
+				let tiedPlayers = [];
+				let hasLeader = false;
+				let leaderNum = 0;
+				for (let vote of votes){ //Leader is the person with the highest influence vote.
+					if (votes[0].influence == vote.influence){
+						tiedPlayers.push(vote.player);
 					}
-					if (!isTied && !hasLeader){
-						hasLeader = true;
-						leader = vote.player;
-						leader.player.influence -= vote.influenceSpent;
-					}
-					msg += `${vote.influence} - ${vote.player.member.user}\n`;
 				}
+				if (tiedPlayers.length > 1){
+					let order = f.createRoleOrder();
+					for (let role of order){
+						leaderNum = 0;
+						for (let ply of tiedPlayers){
+							if (ply == role && ply != TwoBees){//Two bees always fails tie votes
+								leader = ply;
+								hasLeader = true;
+								break;
+							}
+							leaderNum++;
+						}
+						if (hasLeader) break;
+					}
+				} else{
+					leader = votes[0].player;
+					hasLeader = true;
+				}
+				leader.player.influence -= votes[leaderNum].influenceSpent;
+				for (let vote of votes){ // If there is a base influence spent, calculate that now.
+					if (vote.player != leader && vote.influenceSpent != 0){
+						vote.player.player.influence -= baseInfluenceSpent;
+						if (vote.player.player.influence < 0) vote.player.player.influence = 0;
+					}
+				}
+				if (baseInfluenceSpent != 0) message.channel.send(`All players who put forth influence lose ${baseInfluenceSpent} influence.`)
 				if (totalInfluence < Math.floor(players.length*influenceCost)){
 					hasLeader = false;
 					notEnoughInfluence = true;
@@ -615,13 +621,12 @@ class newGameCommand extends Command {
 //=============================================================================================================
 //  Influence vote has been decided
 //=============================================================================================================
-					message.channel.send(`**Influence Used**\n${msg}`);
 					message.channel.send(`The Team Leader is ${leader.member.user}, please pick your partner.`)
 
 					const filter = m => m.author.id === leader.member.user.id;
 					const selectPartnerMessage = new Discord.MessageCollector(message.channel, filter);
 
-					msg = message;
+					let msg = message;
 					while (msg.mentions.members.array().length != 1){
 						msg = await selectPartnerMessage.next;
 					}
@@ -694,16 +699,9 @@ class newGameCommand extends Command {
 							ply.player.influence += 1;
 						}
 					}
-				} else if (!notEnoughInfluence){
-					message.channel.send('All votes are tied. All players lose 5 influence.');
-					for (let ply of players){
-						ply.player.influence -= 5;
-						if (ply.player.influence < 0) ply.player.influence = 0;
-					}
-				} else{
-					message.channel.send(`**Influence Used**\n${msg}`);
-					
+				} else{					
 					message.channel.send('Not enough influence was spent. The mission has failed.');
+					failedvote = true;
 					missionNum++;
 					if (Defender){
 						let arr = Defender.member.user.dmChannel.messages.cache.array();
@@ -912,9 +910,9 @@ class newGameCommand extends Command {
 			}
 //==========================================
 //	Determine Result
-
+			barredPlys = []; //Anyone who was barred from the mission this round is now able to influence vote again
 			if (cards[msg] == 'Success'){
-				message.channel.send(`The mission was successful!`);
+				message.channel.send(`**The mission was successful!**`);
 				if (Saboteur){
 					let arr = Saboteur.member.user.dmChannel.messages.cache.array();
 					for (let i = arr.length-1; i > 0; i--){
@@ -933,16 +931,17 @@ class newGameCommand extends Command {
 				}
 				else message.channel.send('The success effect was cancelled.')
 			} else {
-				message.channel.send(`The mission failed!`);
+				message.channel.send(`**The mission failed!**`);
 				if (Defender){
-					let arr = Defender.member.user.dmChannel.messages.cache.array();
-					for (let i = arr.length-1; i > 0; i--){
-						let msg = arr[i];
-						if (msg.content.startsWith('If you type') && msg.author != Defender.member.user) break;
-						if (msg.content.toLowerCase() == 'cancel'){
-							failEffect = false;
-							Defender.player.role.used = true;
-							Defender = null;
+					if (!Defender.player.role.used){
+						let arr = Defender.member.user.dmChannel.messages.cache.array();
+						for (let i = arr.length-1; i > 0; i--){
+							let msg = arr[i];
+							if (msg.content.startsWith('If you type') && msg.author != Defender.member.user) break;
+							if (msg.content.toLowerCase() == 'cancel'){
+								failEffect = false;
+								Defender.player.role.used = true;
+							}
 						}
 					}
 				}

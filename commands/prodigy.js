@@ -58,9 +58,9 @@ class prodigyCommand extends Command {
         .setDescription(accusedMsg);
 
         await gameChannel.send(emb);
-        await gameChannel.send(`**THE PRODIGY HAS SPOKEN!**. If all accused players are traitors, the innocents win.`)
+        await gameChannel.send(`**THE PRODIGY HAS SPOKEN!**. If all accused players are traitors, the innocents win.`);
         return await setTimeout(function(){
-            if (shouldWin) return gameChannel.send(`The prodigy was correct. **INNOCENTS WIN**`);
+            if (shouldWin) return gameChannel.send(`The prodigy was correct. **THE INNOCENTS WIN**`);
             return gameChannel.send(`The disgraced prodigy was incorrect.`);
         }, 10000);   
 	}	
