@@ -177,7 +177,7 @@ class newGameCommand extends Command {
 		globalThis.Strategist = null;
 		globalThis.Salvager = null;
 		globalThis.Sleuth = null;
-		globalThis.Inquisitor = null;
+		globalThis.PeaceKeeper = null;
 		globalThis.Prodigy = null;
 		globalThis.Auctioneer = null;
 
@@ -242,7 +242,7 @@ class newGameCommand extends Command {
 			if (rl == 'Strategist' || subRoles.includes('Strategist')) Strategist = ply;
 			if (rl == 'Salvager' || subRoles.includes('Salvager')) Salvager = ply;
 			if (rl == 'Sleuth' || subRoles.includes('Sleuth')) Sleuth = ply;
-			if (rl == 'Inquisitor' || subRoles.includes('Inquisitor')) Inquisitor = ply;
+			if (rl == 'Peace Keeper' || subRoles.includes('Peace Keeper')) PeaceKeeper = ply;
 			if (rl == 'Prodigy' || subRoles.includes('Prodigy')) Prodigy = ply;
 			if (rl == 'Auctioneer' || subRoles.includes('Auctioneer')) Auctioneer = ply;
 			
@@ -262,13 +262,8 @@ class newGameCommand extends Command {
 		let targetTbl = [];
 		if (Researcher) Researcher.member.user.send(roleMsg);
 
-		if (Inquisitor){
-			let tgt = players[Math.floor(Math.random()*players.length)];
-			while (tgt.player.team != 'traitor' && traitorCount != 0){
-				tgt = players[Math.floor(Math.random()*players.length)];
-			}
-			Inquisitor.member.user.send(`Your target is the ${tgt.player.role.name}. Type !inquisite in the DM channel when you know who has that role.`);
-			Inquisitor.player.target = tgt;
+		if (PeaceKeeper){
+			PeaceKeeper.member.user.send(`Type !disarm in the DM channel when you think you know the identity of a traitor. Their sting will be disabled.`);
 		}
 
 		if (DoubleAgent){

@@ -5,12 +5,12 @@ module.exports = {
 			description: 'When the leader draws cards, you are shown the first card they drew.',
 			startingInfluence: 12
 		},
-		/*{
+		{
 			name: 'Defender',
 			description: 'You may cancel one mission fail effect.',
 			startingInfluence: 10,
 			used: false
-		},*/
+		},
 		{
 			name: 'Capital Bee',
 			description: 'Starts the game with 5000 influence.',
@@ -82,8 +82,8 @@ module.exports = {
 			traitors: 2
 		},
 		{
-			name: 'Inquisitor',
-			description: 'Has a random traitor role as a target. If they guess them correctly at any point during the game, that traitor is forced to use their sting. Otherwise, you lose this power.',
+			name: 'Peace Keeper',
+			description: 'Once per game may disarm a player. If that player is a traitor, their sting is removed.',
 			startingInfluence: 8
 		},
 		{
@@ -129,7 +129,7 @@ module.exports = {
 		{
 			name: 'Dictator',
 			description: 'Votes cannot fail if you are either the leader or partner.',
-			startingInfluence: 6,
+			startingInfluence: 10,
 			traitors: 2
 		},
 		{

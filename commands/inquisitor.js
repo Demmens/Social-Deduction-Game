@@ -3,17 +3,17 @@ var roles = require('../classes/roles');
 
 class inquisiteCommand extends Command {
 	constructor() {
-		super("Inquisite", {
-            aliases: ["Inquisite"]
+		super("Disarm", {
+            aliases: ["Disarm"]
 		});
     }
     async *args(message){
-        if (Inquisitor){
-            if (Inquisitor.player.role.used) return;
+        if (PeaceKeeper){
+            if (PeaceKeeper.player.role.used) return;
             var name = yield{
                 type: "playername",
                 prompt: {
-                    start: message => `${message.author} Type the display name of the player you wish to inquisite.`,
+                    start: message => `${message.author} Type the display name of the player you wish to disarm.`,
                     retry: message => `${message.author} That is not a valid player.`,
                     prompt: true
                 }
@@ -33,15 +33,15 @@ class inquisiteCommand extends Command {
         }
     }
 	async exec(message, args) {
-        if (Inquisitor){
-            if (Inquisitor.player.role.used) return;
-            if (args.inquisitor == Inquisitor){
-                Inquisitor.player.role.used = true;
-                if (args.target == Inquisitor.player.target){
-                    return gameChannel.send(`**The Inquisitor has guessed ${args.target.member.user} correctly. They must now use their sting.**`);
+        if (PeaceKeeper){
+            if (PeaceKeeper.player.role.used) return;
+            if (args.inquisitor == PeaceKeeper){
+                PeaceKeeper.player.role.used = true;
+                if (args.target.player.team == 'traitor'){
+                    return args.target.member.user.send(`**The Peace Keeper has guessed you correctly. You may no longer sting.**`)
                 }
                 else{
-                    return gameChannel.send(`**The Inquisitor has guessed incorrectly.**`);
+                    return PeaceKeeper.send(`**You guessed incorrectly.**`);
                 }
             }
         }
