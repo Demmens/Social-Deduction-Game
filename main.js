@@ -38,25 +38,11 @@ class MyClient extends AkairoClient {
 			}
 			return null;
 		});
-/*		this.inhibitorHandler = new InhibitorHandler(
-			this,
-			{
-				directory: "./inhibitors/"
-			}
-		);*/
-		this.listenerHandler = new ListenerHandler(
-			this,
-			{
-				directory: "./listeners/"
-			}
-		);
 
 		this.commandHandler.useListenerHandler(this.listenerHandler);
 		this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
 		
 		this.commandHandler.loadAll();
-		//this.inhibitorHandler.loadAll();
-		this.listenerHandler.loadAll();
 		
 	}
 }

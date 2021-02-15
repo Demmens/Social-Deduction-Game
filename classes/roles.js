@@ -88,7 +88,7 @@ module.exports = {
 		},
 		{
 			name: 'Auctioneer',
-			description: 'Instead of putting forth influence, outbid a chosen player by a selected number of influence (if you have enough)',
+			description: 'Instead of putting forth influence, outbid a chosen player by a selected number of influence (if you have enough). Also wins influence ties.',
 			startingInfluence: 15
 		}
 	],

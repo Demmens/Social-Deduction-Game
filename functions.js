@@ -46,7 +46,7 @@ module.exports = {
 		roleOrder.push(Gambler);
 		roleOrder.push(Omniscient);
 		roleOrder.push(SpellingBee);
-		roleOrder.push(Inquisitor);
+		roleOrder.push(PeaceKeeper);
 		roleOrder.push(PlanBee);
 		roleOrder.push(Detective);
 		roleOrder.push(Sleuth);

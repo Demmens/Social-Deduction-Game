@@ -6,7 +6,7 @@ class Target extends Mission{
 	constructor(){
 		super({
 			name: 'Investigate Possible Targets',
-			successtext: 'One player is revealed to not be a target.',
+			successtext: 'One role is revealed to not be a target.',
 			failtext: 'Traitors may choose to randomise their target.'
 		})
 	}

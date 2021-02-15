@@ -13,8 +13,9 @@ const innoRoleChoices = 3; //Amount of role choices innocents get
 const traitorRoleChoices = 3; //Amount of role choices traitors get
 // Influence
 const InfluenceRegen = 1; //How much influence you gain per turn
-const influenceCost = 2; //How much influence per player is required for a mission to go through.
+const influenceCost = 0; //How much influence per player is required for a mission to go through
 const baseInfluenceSpent = 0; //How much influence you lose if you put forth any amount of influence
+const teamLeaderInfluenceLost = 5; //How much influence you lose if you end up as team leader
 // Role
 const SuppressorNumber = 1; //How much influence a player is set to when suppressed
 const SleuthTimer = 3; //How many turns between Sleuth investigates
@@ -35,6 +36,8 @@ class newGameCommand extends Command {
 		globalThis.failEffect = true;
 		globalThis.players = [];
 		globalThis.barredPlys = [];
+		globalThis.lastLeader = null;
+		globalThis.lastPartner = null;
 		var traitorCount = 0;
 		var innocentCount = 0;
 
@@ -91,7 +94,7 @@ class newGameCommand extends Command {
 
 		roles.innocent = f.ArrRandomise(roles.innocent);
 		roles.traitor = f.ArrRandomise(roles.traitor);
-		let roleMsg = '**Roles in the game**';
+		let roleMsg = '__**Roles in the game**__\n';
 		let roleChoices = [];
 
 		//Allow players to choose the role they want
@@ -130,6 +133,7 @@ class newGameCommand extends Command {
 			else innoNum = x;
 		}
 		//Wait until everyone has chosen their role
+		let waitingFor = await gameChannel.send(`Waiting for ${players[0].member.displayName} to pick their role.`)
 		let allPicked = false;
 		while (!allPicked){
 			let x = 0;
@@ -149,18 +153,29 @@ class newGameCommand extends Command {
 				} else {
 					let fl = m => m.author.id === ply.member.id;
 					let pickRoleControler = new Discord.MessageCollector(ply.member.user.dmChannel, fl);
+					await waitingFor.edit(`Waiting for ${ply.member.displayName} to pick their role.`)
 					msg = await pickRoleControler.next;
 				}
 				x++;
 			}
 			if (x == chosen) allPicked = true;
 		}
-		{
-			for (let ply of players){
+		await waitingFor.edit(`All players have chosen their roles.`);
+		roleMsg += `\n**INNOCENT ROLES**\n`;
+		for (let ply of players){
+			if (ply.player.team == 'innocent'){
 				ply.player.influence = ply.player.role.startingInfluence;
-				roleMsg += `\n${ply.player.role.name} (${ply.player.team}) - ${ply.player.role.description}`;
+				roleMsg += `\n**${ply.player.role.name}** - ${ply.player.role.description}`;
 			}
 		}
+		roleMsg += `\n\n**TRAITOR ROLES**\n`;
+		for (let ply of players){
+			if (ply.player.team == 'traitor'){
+				ply.player.influence = ply.player.role.startingInfluence;
+				roleMsg += `\n**${ply.player.role.name}** - ${ply.player.role.description}`;
+			}
+		}
+		roleMsg += `\n`;
 //======================================================================
 //		Assign Variables
 		globalThis.Researcher = null;
@@ -271,17 +286,14 @@ class newGameCommand extends Command {
 			let hasInnocent = false;
 			let plyTbl = [];
 			let tgt = players[Math.floor(Math.random()*players.length)];
-			let roles = 0;
-			while ((tgt == DoubleAgent && players.length > 2) || roles < 2){
+			while (plyTbl.length < 2){
 				tgt = players[Math.floor(Math.random()*players.length)];
-				if (tgt.player.team == 'innocent' && !hasInnocent){
+				if (tgt.player.team == 'innocent' && !hasInnocent && tgt != DoubleAgent){
 					hasInnocent = true;
-					roles++;
 					plyTbl.push(tgt);
 				}
 				else if (tgt.player.team == 'traitor' && !hasTraitor){
 					hasTraitor = true;
-					roles++;
 					plyTbl.push(tgt);
 				} 
 			}
@@ -390,8 +402,14 @@ class newGameCommand extends Command {
 		}
 
 		if (Insider){
-			let tgt = targetTbl[Math.floor(Math.random()*targetTbl.length)];
-			Insider.member.user.send(`One of the targets is the ${tgt.player.role.name}`);
+			let ply = players[Math.floor(Math.random()*players.length)];
+			let hasTgt = false;
+			while (!hasTgt){
+				if (targetTbl.includes(ply)){
+					ply = players[Math.floor(Math.random()*players.length)];
+				} else hasTgt = true;
+			}
+			Insider.member.user.send(`The ${ply.player.role.name} is not a target.`);
 		}
 
 //===========================================================================
@@ -421,9 +439,11 @@ class newGameCommand extends Command {
 				.setTitle(`**Mission ${missionNum}: ${mission.name}**`)
 				.setDescription(`**Success Effect**\n${mission.successtext}\n**Fail Effect**\n${mission.failtext}`)
 				message.channel.send(missionEmbed);
-				message.channel.send(`Draw Pile: ${drawPile.length}\nDiscard Pile: ${discardPile.length}`);
-				message.channel.send(`This mission requires ${Math.floor(influenceCost*players.length)} influence to start.`);
-				message.channel.send(`Direct message The Hive with the number of influence you wish to spend.`);
+				let postMissionMessage = '';
+				postMissionMessage += `Draw Pile: ${drawPile.length}\nDiscard Pile: ${discardPile.length}`;
+				postMissionMessage += `\nThis mission requires ${Math.floor(influenceCost*players.length)} influence to start.`
+				postMissionMessage += `\nDirect message The Hive with the number of influence you wish to spend.`
+				message.channel.send(postMissionMessage);
 
 //=================================================================================================================
 //	Influence vote start
@@ -456,6 +476,7 @@ class newGameCommand extends Command {
 				}
 
 				let influenceDone = false;
+				waitingFor = await message.channel.send(`Waiting for ${players[0].member.displayName} to put forth influence.`);
 				while (!influenceDone){
 					let done = 0;
 					for (let ply of canInfluenceVote){
@@ -465,11 +486,13 @@ class newGameCommand extends Command {
 						} else{
 							let fl = m => m.author.id === ply.member.id;
 							let inflController = new Discord.MessageCollector(ply.member.user.dmChannel, fl);
+							await waitingFor.edit(`Waiting for ${ply.member.displayName} to put forth influence.`)
 							msg = await inflController.next;
 						}
 					}
 					if (done == canInfluenceVote.length) influenceDone = true;
 				}
+				await waitingFor.edit(`All players have put forth influence.`)
 				if (Sleuth){
 					if (!Sleuth.player.role.used){
 						let arr = Sleuth.member.user.dmChannel.messages.cache.array();
@@ -616,18 +639,31 @@ class newGameCommand extends Command {
 //=============================================================================================================
 //  Influence vote has been decided
 //=============================================================================================================
-					message.channel.send(`The Team Leader is ${leader.member.user}, please pick your partner.`)
-
+					message.channel.send(`The Team Leader is ${leader.member.user}. Please pick your partner.`)
+					if (leader == lastLeader || (leader == lastPartner && players.length > 5)){
+						let power = '';
+						if (leader == lastLeader) power = 'team leader';
+						else power = 'partner';
+						leader.influence -= teamLeaderInfluenceLost;
+						message.channel.send(`${leader.member.displayName} lost ${teamLeaderInfluenceLost} influence as they were the previous ${power}.`)
+						if (leader.influence < 0) leader.influence = 0;
+					}
 					const filter = m => m.author.id === leader.member.user.id;
 					const selectPartnerMessage = new Discord.MessageCollector(message.channel, filter);
 
 					let msg = message;
-					while (msg.mentions.members.array().length != 1){
+					let isValidPartner = false;
+					while (!isValidPartner){
 						msg = await selectPartnerMessage.next;
-					}
-					partner = msg.mentions.members.array()[0];
-					for (let ply of players){
-						if (ply.member == partner) partner = ply;
+						partner = msg.mentions.members.array()[0];
+						for (let ply of players){
+							if (ply.member == partner) partner = ply;
+						}
+						if (!partner.player){
+							message.channel.send(`That is not a valid player.`);
+						} else if (partner == lastPartner) {
+							message.channel.send(`You cannot pick the partner from previous mission.`);
+						} else isValidPartner = true;
 					}
 
 //===============================
@@ -639,6 +675,7 @@ class newGameCommand extends Command {
 					}
 					
 					let voteDone = false;
+					waitingFor = await message.channel.send(`Waiting for ${players[0].member.displayName} to vote.`);
 					while (!voteDone){
 						let done = 0;
 						for (let ply of players){
@@ -648,11 +685,13 @@ class newGameCommand extends Command {
 							} else {
 								let fl = m => m.author.id === ply.member.id;
 								let voteController = new Discord.MessageCollector(ply.member.user.dmChannel, fl);
+								await waitingFor.edit(`Waiting for ${ply.member.displayName} to vote.`);
 								msg = await voteController.next;
 							}
 						}
 						if (done == players.length) voteDone = true;
 					}
+					await waitingFor.edit(`All players have voted.`)
 
 					failedvote = true;
 					let yesVotes = [];
@@ -699,14 +738,16 @@ class newGameCommand extends Command {
 					failedvote = true;
 					missionNum++;
 					if (Defender){
-						let arr = Defender.member.user.dmChannel.messages.cache.array();
-						for (let i = arr.length-1; i > 0; i--){
-							let msg = arr[i];
-							if (msg.content.startsWith('If you type') && msg.author != Defender.member.user) break;
-							if (msg.content.toLowerCase() == 'cancel'){
-								failEffect = false;
-								Defender.player.role.used = true;
-								Defender = null;
+						if (!Defender.player.role.used){
+							let arr = Defender.member.user.dmChannel.messages.cache.array();
+							for (let i = arr.length-1; i > 0; i--){
+								let msg = arr[i];
+								if (msg.content.startsWith('If you type') && msg.author != Defender.member.user) break;
+								if (msg.content.toLowerCase() == 'cancel'){
+									failEffect = false;
+									Defender.player.role.used = true;
+									Defender = null;
+								}
 							}
 						}
 					}
@@ -909,19 +950,24 @@ class newGameCommand extends Command {
 			if (cards[msg] == 'Success'){
 				message.channel.send(`**The mission was successful!**`);
 				if (Saboteur){
-					let arr = Saboteur.member.user.dmChannel.messages.cache.array();
-					for (let i = arr.length-1; i > 0; i--){
-						let msg = arr[i];
-						if (msg.content.startsWith('If you type') && msg.author != Saboteur.member.user) break;
-						if (msg.content.toLowerCase() == 'cancel'){
-							successEffect = false;
-							Saboteur.player.role.used = true;
-							Saboteur = null;
+					console.log('saboteur is in game')
+					if (!Saboteur.player.role.used){
+						console.log('saboteur has not used role')
+						let arr = Saboteur.member.user.dmChannel.messages.cache.array();
+						for (let i = arr.length-1; i > 0; i--){
+							let msg = arr[i];
+							if (msg.content.startsWith('If you type') && msg.author != Saboteur.member.user) break;
+							if (msg.content.toLowerCase() == 'cancel'){
+								successEffect = false;
+								Saboteur.player.role.used = true;
+							}
 						}
 					}
 				}
 				if (successEffect){
-					let shouldEnd = await mission.success(message.channel);
+					let shouldEnd = mission.success(message.channel);
+					successEffect = true;
+					failEffect = true;
 					if (shouldEnd) return;
 				}
 				else message.channel.send('The success effect was cancelled.')
@@ -941,7 +987,9 @@ class newGameCommand extends Command {
 					}
 				}
 				if (failEffect){
-					let shouldEnd = await mission.fail(message.channel);
+					let shouldEnd = mission.fail(message.channel);
+					successEffect = true;
+					failEffect = true;
 					if (shouldEnd) return;
 				}
 				else message.channel.send('The fail effect was cancelled.');
@@ -956,9 +1004,10 @@ class newGameCommand extends Command {
 			if (InfluenceRegen > 0) message.channel.send(`Everyone gains ${InfluenceRegen} influence.`)
 
 			missionNum++; //Proceed to the next mission.
+			lastLeader = leader;
+			lastPartner = partner;
 		}
 
 	}
 }
-
 module.exports = newGameCommand;

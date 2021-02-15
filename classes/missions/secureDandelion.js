@@ -5,7 +5,7 @@ class PollenateDandelion extends Mission{
 		super({
 			name: 'Secure Dandelion Field',
 			successtext: 'Securing 3 fields results in an innocent victory.',
-			failtext: 'All players lose 5 influence'
+			failtext: 'All innocents lose 5 influence'
 		})
 	}
 
@@ -20,8 +20,10 @@ class PollenateDandelion extends Mission{
 
 	fail(channel){
 		for (let ply of players){
-			ply.player.influence -= 5;
-			if (ply.player.influence < 0) ply.player.influence = 0;
+			if (ply.player.team == 'innocent'){
+				ply.player.influence -= 5;
+				if (ply.player.influence < 0) ply.player.influence = 0;
+			}
 		}
 		return;
 	}

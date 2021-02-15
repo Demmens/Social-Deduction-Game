@@ -18,8 +18,10 @@ class PollenateLavender extends Mission{
 		return;
 	}
 
-	fail(channel){
-		successEffect = false;
+	fail(){
+		setTimeout(function(){
+			successEffect = false;
+		}, 5000);
 		return;
 	}
 }

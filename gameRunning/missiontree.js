@@ -40,23 +40,23 @@ module.exports = {
 		}
 		if (playerCount){
 			if (playerCount == 7 || playerCount == 8){
-				missionTree[0] = GatherArmaments;
-				missionTree[1] = SecureDandelionField;
-				missionTree[2] = GatherArmaments;
-				missionTree[3] = HiveInterrogation;
-				missionTree[4] = SourceIntelligence;
-				missionTree[5] = GatherArmaments;
-				missionTree[6]= HiveInterrogation;
-				missionTree[7] = SecureDandelionField;
-				missionTree[8] = SpreadPropoganda;
-				missionTree[9] = SecureDaffodilField;
-				missionTree[10] = HiveInterrogation;
-				missionTree[11] = SecureLavenderField;
-				missionTree[12] = CreateBackupPlan;
-				missionTree[13] = LaunchAssaultOnOpposingHive;
-				missionTree[14] = LaunchAssaultOnOpposingHive;
-				missionTree[15] = LaunchAssaultOnOpposingHive;
-				missionTree[16] = LaunchAssaultOnOpposingHive;	
+				missionTree.push(GatherArmaments);
+				missionTree.push(SecureDaisyField);
+				missionTree.push(GatherArmaments);
+				missionTree.push(HiveInterrogation);
+				missionTree.push(SecureDandelionField);
+				missionTree.push(SourceIntelligence);
+				missionTree.push(HiveInterrogation);
+				missionTree.push(SecureDandelionField);
+				missionTree.push(SpreadPropoganda);
+				missionTree.push(SecureDaffodilField);
+				missionTree.push(HiveInterrogation);
+				missionTree.push(SecureLavenderField);
+				missionTree.push(CreateBackupPlan);
+				missionTree.push(LaunchAssaultOnOpposingHive);
+				missionTree.push(LaunchAssaultOnOpposingHive);
+				missionTree.push(LaunchAssaultOnOpposingHive);
+				missionTree.push(LaunchAssaultOnOpposingHive);	
 			}
 			if (playerCount == 5 || playerCount == 6){
 				missionTree[0] = GatherArmaments;
@@ -88,8 +88,11 @@ module.exports = {
 				missionTree[10] = LaunchAssaultOnOpposingHive;
 			}
 			if (playerCount < 4){
-				missionTree[0] = SuspendAgents;
-				missionTree[1] = SuspendAgents;
+				missionTree[0] = GatherArmaments;
+				missionTree[1] = GatherArmaments;
+				missionTree[2] = GatherArmaments;
+				missionTree[3] = GatherArmaments;
+				missionTree[4] = GatherArmaments;
 			}
 		}
 
