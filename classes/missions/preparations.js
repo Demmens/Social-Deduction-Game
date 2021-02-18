@@ -10,16 +10,12 @@ class Investigate extends Mission{
 	}
 
 	async success(channel){
-		setTimeout(function(){
-			failEffect = false;
-		}, 5000);
+		failEffect = false;
 		return
 	}
 
 	fail(channel){
-		setTimeout(function(){
-			successEffect = false;
-		}, 5000);
+		successEffect = false;
 		return;
 	}
 }

@@ -1,6 +1,5 @@
 const Discord  = require('discord.js');
 const Mission = require('../Mission');
-const { traitor } = require('../roles');
 
 class Target extends Mission{
 	constructor(){
@@ -35,14 +34,12 @@ class Target extends Mission{
 		for (let ply of players){
             if (ply.player.team == 'traitor'){
                 traitorCount++;
-                let rlMsg = '**Roles**';
                 for (let ply of players){
                     if (ply.player.team == 'innocent'){
-                        rlMsg += `\n${ply.player.role.name}`;
                         roleRandomise.push(ply);
                     }
                 }
-                await ply.member.user.send(`${rlMsg}\nWould you like to randomise your target? (\`yes\`/\`no\`)`);
+                await ply.member.user.send(`Would you like to randomise your target? (\`yes\`/\`no\`)`);
             }
         }
         let hasSetTarget = false;

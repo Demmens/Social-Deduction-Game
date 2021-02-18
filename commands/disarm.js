@@ -1,5 +1,4 @@
 const { Command } = require("discord-akairo");
-var roles = require('../classes/roles');
 
 class inquisiteCommand extends Command {
 	constructor() {

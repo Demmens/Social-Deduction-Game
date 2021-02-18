@@ -1,6 +1,5 @@
 const { Command } = require("discord-akairo");
 const Discord = require("discord.js");
-var roles = require('../classes/roles');
 
 class prodigyCommand extends Command {
 	constructor() {
@@ -14,9 +13,9 @@ class prodigyCommand extends Command {
         let accused = [];
         let prodigy;
 
-        for (let ply of players){
-            if (ply.member.user == message.author) prodigy = ply;
-            if (ply.player.team == 'traitor') traitors.push(ply);
+        for (let role of roles){
+            if (role.owner.member.user == message.author && role.name == "Prodigy") prodigy = ply;
+            if (role.team == 'traitor') traitors.push(ply);
         }
         
         if (prodigy.player.hasBuzzed) return message.channel.send(`${message.author} You may only buzz once per game.`)
@@ -45,7 +44,7 @@ class prodigyCommand extends Command {
         return {accused, prodigy}
     }
 	async exec(message, args) {
-        if (args.prodigy != Prodigy) return;
+        if (!args.prodigy) return
         var shouldWin = true; //Default is that innocents should win
         let accusedMsg = '';
         for (let tgt of args.accused){

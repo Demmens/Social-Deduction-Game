@@ -1,5 +1,6 @@
 const Mission = require('../Mission');
 const Discord = require('discord.js');
+const events = require('../../gameRunning/events');
 
 class Investigate extends Mission{
 	constructor(){
@@ -11,8 +12,8 @@ class Investigate extends Mission{
 	}
 
 	async success(channel){
-		channel.send(`${leader.member.user} Mention a user to learn their team.`);
-		const filter = m => m.author.id === leader.member.id;
+		channel.send(`${general.member.user} Mention a user to learn their team.`);
+		const filter = m => m.author.id === general.member.id;
 		const messageController = new Discord.MessageCollector(channel, filter);
 		let msg = await messageController.next;
 		while (msg.mentions.members.array().length != 1){
@@ -27,7 +28,14 @@ class Investigate extends Mission{
 		let tm = '';
 		if (target.player.team == 'traitor') tm = 'a traitor';
 		else tm = 'innocent';
-		leader.member.user.send(`${target.member.displayName} is ${tm}.`);
+
+		globalThis.interrogateResult = `${target.member.displayName} is ${tm}.`;
+
+		await events.OnInterrogation();
+
+		general.member.user.send(interrogateResult);
+
+		await events.AfterInterrogation();
 		return;
 	}
 

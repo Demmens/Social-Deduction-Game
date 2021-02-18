@@ -1,80 +1,79 @@
 class Role {
 	constructor(options = {}){
 		const {
-			name = "",
-			description = "",
-			used = false,
-            startingInfluence = 0,
-            team = "",
+			name = '',
+			description = '',
+			influence = 0,
             owner = null,
+            team = '',
+            hasTarget = true,
+            playersRequired = 0,
+            used = false,
+            allowTwoBees = true,
+            canBeTarget = true
 		} = options;
 		this.name = name;
 		this.description = description;
-		this.used = used;
-        this.startingInfluence = startingInfluence;
-        this.team = team;
+		this.influence = influence;
         this.owner = owner;
+        this.team = team;
+        this.hasTarget = hasTarget;
+        this.playersRequired = playersRequired;
+        this.used = used;
+        this.allowTwoBees = allowTwoBees;
+        this.canBeTarget = canBeTarget;
 	}
 
-	AfterRolesChosen()
-    {
+	AfterRolesPicked(){}
 
+    AfterTargetsChosen(){}
+
+    BeforeInfluenceVote(){}
+
+    BeforeInfluenceTotal(){}
+
+    BeforeLeaderPickPartner(){}
+
+    BeforeVoting(){}
+
+    BeforeVoteResult(){}
+
+    AfterVoteResult(){}
+
+    BeforeLeaderDraw(){}
+
+    AfterLeaderDraw(){}
+
+    OverwriteLeaderDraw(){}
+
+    DisplayCardsToLeaders(){
+        if (this.owner != general && this.owner != major) return;
+        let hand = cards.general;
+        if (this.owner == major) hand = cards.major;
+        let msg = '**You have drawn:**';
+        let x = 0;
+        for (let card of hand){
+            x++;
+            msg += `\n${x} - ${card}`;
+        }
+        if (players.length < playersFor3PlayerMissions) msg += `\nType the number of the card you wish to discard.`;
+        else msg += `\nType the number of the card you wish to pass to the captain.`;
+        this.owner.member.user.send(msg);
     }
 
-    AfterTargetsSelected()
-    {
+    AfterCardsDisplayedToLeader(){}
 
-    }
+    BeforeLeaderPass(){}
 
-    BeforeInfluenceVotes()
-    {
+    BeforePartnerCardPlayed(){}
 
-    }
+    BeforeResultDetermined(){}
 
-    BeforeInfluenceCount()
-    {
+    AfterResultDetermined(){}
 
-    }
+    OnInterrogation(){}
 
-    AfterInfluenceCount()
-    {
-
-    }
-
-    BeforeVote()
-    {
-
-    }
-
-    BeforeVoteCount()
-    {
-
-    }
-
-    AfterVoteCount()
-    {
-
-    }
-
-    BeforeCardsDrawn()
-    {
-
-    }
-
-    AfterLeaderCardsDrawn()
-    {
-
-    }
-
-    BeforeMissionResult()
-    {
-
-    }
-
-    AfterMissionResult()
-    {
-
-    }
+    AfterInterrogation(){}
 }
 
 module.exports = Role;

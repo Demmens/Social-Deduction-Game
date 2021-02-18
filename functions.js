@@ -28,33 +28,24 @@ module.exports = {
 	},
 
 	createRoleOrder: function(){
-		var roleOrder = [];
-		roleOrder.push(Auctioneer);
-		roleOrder.push(Dictator);
-		roleOrder.push(CapitalBee);
-		roleOrder.push(Salvager);
-		roleOrder.push(Veteran);
-		roleOrder.push(Strategist);
-		roleOrder.push(Defender);
-		roleOrder.push(Saboteur);
-		roleOrder.push(Insider);
-		roleOrder.push(Hypnotist);
-		roleOrder.push(Psychic);
-		roleOrder.push(Spy);
-		roleOrder.push(Suppressor);
-		roleOrder.push(Prodigy);
-		roleOrder.push(Gambler);
-		roleOrder.push(Omniscient);
-		roleOrder.push(SpellingBee);
-		roleOrder.push(PeaceKeeper);
-		roleOrder.push(PlanBee);
-		roleOrder.push(Detective);
-		roleOrder.push(Sleuth);
-		roleOrder.push(DoubleAgent);
-		roleOrder.push(FumbleBee);
-		roleOrder.push(Professional);
-		roleOrder.push(Researcher);
-		roleOrder.push(TwoBees);
+		let roleOrder = [];
+		let twoBeesPlayer;
+		let AuctioneerPlayer;
+		for (let role of roles){
+			if (role.name == "Two Bees in a Trench-Coat") twoBeesPlayer = role.owner;
+			if (role.name == "Auctioneer") AuctioneerPlayer = role.owner;
+		}
+		roles.sort(function(a,b){
+			if (a.name < b.name) return -1;
+			if (a.name > b.name) return 1;
+			return 0;
+		});
+		if (AuctioneerPlayer && AuctioneerPlayer != twoBeesPlayer) roleOrder.push(AuctioneerPlayer);
+		for (let role of roles){
+			if (role.owner != twoBeesPlayer) roleOrder.push(role.owner);
+		}
+		if (twoBeesPlayer) roleOrder.push(twoBeesPlayer);
+
 		return roleOrder;
 	}
 }

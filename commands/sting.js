@@ -1,5 +1,4 @@
 const { Command } = require("discord-akairo");
-var roles = require('../classes/roles');
 
 class stingCommand extends Command {
 	constructor() {
@@ -19,13 +18,13 @@ class stingCommand extends Command {
         var stinger;
         var plynum = 0;
         let x = 0;
-        for (let ply of players){
-            if (ply.member == message.member){
-                stinger = ply;
+        for (let role of roles){
+            if (role.owner.member == message.member){
+                stinger = role.owner;
                 plynum = x;
             }
-            if (ply.member == player){
-                player = ply;
+            if (role.owner.member == player){
+                player = role;
             }
             x++;
         }
@@ -34,8 +33,8 @@ class stingCommand extends Command {
         return {player, stinger, plynum}
     }
 	async exec(message, args) {
-        if (args.player == args.stinger.player.target || args.player == Omniscient){
-            return message.channel.send(`**Traitors Win**`);
+        if (args.player.owner == args.stinger.player.target){
+            return message.channel.send(`The traitor stung the ${args.player.name}. **Traitors Win**`);
         }
         else{
             players.splice(args.plynum, 1);

@@ -1,6 +1,5 @@
 const { Command } = require("discord-akairo");
 const Discord = require("discord.js");
-var roles = require('../classes/roles');
 
 class buzzCommand extends Command {
 	constructor() {
