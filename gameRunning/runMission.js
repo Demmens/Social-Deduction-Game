@@ -2,12 +2,15 @@ const Discord = require('discord.js');
 const f = require("../functions.js");
 const missiontypes = require('./missiontypes.js');
 const events = require('./events');
-globalThis.playersFor3PlayerMissions = 3;
 
 module.exports = {
     displayMission: function(mission)
     {
-        if (mission.name.startsWith(`Secure `)) mission.name += ` (${pollenated}/3)`;
+        if (mission.name.startsWith(`Secure `)){
+            if (mission.name.endsWith(`/3)`)){
+                mission.name = mission.name.replace(/[\(]\d/, `(${pollenated}`)
+            } else mission.name += ` (${pollenated}/3)`;
+        }
         let missionEmbed = new Discord.MessageEmbed()
         .setTitle(`**Mission ${missionNum}: ${mission.name}**`)
         .setDescription(`**Success Effect**\n${mission.successtext}\n**Fail Effect**\n${mission.failtext}`)
@@ -82,6 +85,10 @@ module.exports = {
                 return aOrder - bOrder;
             }
         });
+
+        if (totalInfluence < Math.floor(players.length*influenceCost)){
+            enoughInfluence = false;
+        }
     },
 
     determineMissionGoers: async function()
@@ -101,9 +108,6 @@ module.exports = {
             }
         }
         if (baseInfluenceSpent != 0) message.channel.send(`All players who put forth influence lose ${baseInfluenceSpent} influence.`);
-        if (totalInfluence < Math.floor(players.length*influenceCost)){
-            enoughInfluence = false;
-        }
     },
 
     leaderPickPartner: async function()
@@ -120,7 +124,8 @@ module.exports = {
             gameChannel.send(`${general.member.displayName} lost ${teamLeaderInfluenceLost} influence as they were the previous ${power}.`)
             if (general.influence < 0) general.influence = 0;
         }
-        const filter = m => m.author.id === general.member.user.id;
+        let tempGen = general;
+        const filter = m => m.author.id === tempGen.member.user.id;
         const selectPartnerMessage = new Discord.MessageCollector(gameChannel, filter);
 
         let msg = null;
@@ -230,14 +235,6 @@ module.exports = {
             captain: []
         };
 
-        //Reshuffle pile
-        if (drawPile.length < shouldDraw){
-            for (let card of discardPile){ //put discards back into the deck
-                drawPile.push(card);
-            }
-            drawPile = f.ArrRandomise(drawPile); //Shuffle the deck
-            discardPile = []; //Empty discard pile
-        }
         if (players.length < playersFor3PlayerMissions){
             return missiontypes.twoPlayerMission();
         } else {
@@ -281,5 +278,21 @@ module.exports = {
         }
 
         if (InfluenceRegen > 0) gameChannel.send(`Everyone gains ${InfluenceRegen} influence.`);
+
+        shouldDraw = 2;
+        if (players.length < playersFor3PlayerMissions) shouldDraw = 3;
+
+        //Reshuffle pile if it needs it
+        let cardsDrawn = shouldDraw;
+        if (players.length >= playersFor3PlayerMissions) cardsDrawn = shouldDraw*2
+        if (drawPile.length < cardsDrawn){
+            await gameChannel.send('Shuffling Draw Pile...');
+            events.BeforeShuffleDrawPile();
+            for (let card of discardPile){ //put discards back into the deck
+                drawPile.push(card);
+            }
+            drawPile = f.ArrRandomise(drawPile); //Shuffle the deck
+            discardPile = []; //Empty discard pile
+        }
     }
 }

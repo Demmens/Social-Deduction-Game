@@ -23,6 +23,7 @@ class TwoBees extends Role
             if (x<2 && role.allowTwoBees && role.team == 'innocent'){
                 role.owner = this.owner;
                 role.canBeTarget = false;
+                role.isTwoBeesRole = true;
                 roles.push(role);
                 x++;
                 rlMsg += `\n${role.name}: ${role.description}`;

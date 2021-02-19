@@ -35,7 +35,8 @@ class Strategist extends Role
             msg += ` (extra draw)\nType the number of the card you wish to put on top of the draw pile.`;
             general.member.user.send(msg);
 
-            var leaderDiscardFilter = m => m.author.id === general.member.user.id;
+            let tempGen = general;
+            var leaderDiscardFilter = m => m.author.id === tempGen.member.user.id;
             var leaderDiscardMessage = new Discord.MessageCollector(general.member.user.dmChannel, leaderDiscardFilter);
 
             msg = shouldDraw+1;

@@ -29,7 +29,7 @@ class Professional extends Role
                 drawPile.splice(i,1);
                 hasSuccess = true;
             }
-            if (card == 'Fail' && hasFail+1 <= totalCards){
+            if (card == 'Fail' && hasFail+1 < totalCards){
                 cardPool.push(card);
                 drawPile.splice(i,1);
                 hasFail++;

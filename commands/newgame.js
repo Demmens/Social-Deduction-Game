@@ -9,11 +9,12 @@ const runMission = require("../gameRunning/runMission.js");
 // Setup
 globalThis.SuccessCards = 3; //Number of Succeed cards in the base deck
 globalThis.FailCards = 7; //Number of Fail cards in the base deck
-globalThis.innoRoleChoices = 30; //Amount of role choices innocents get
+globalThis.innoRoleChoices = 3; //Amount of role choices innocents get
 globalThis.traitorRoleChoices = 3; //Amount of role choices traitors get
+globalThis.playersFor3PlayerMissions = 6; //How many players need to be in the game for 3 player missions instead of 2 player
 // Influence
 globalThis.InfluenceRegen = 1; //How much influence you gain per turn
-globalThis.influenceCost = 0; //How much influence per player is required for a mission to go through
+globalThis.influenceCost = 2; //How much influence per player is required for a mission to go through
 globalThis.baseInfluenceSpent = 0; //How much influence you lose if you put forth any amount of influence
 globalThis.teamLeaderInfluenceLost = 5; //How much influence you lose if you end up as team general twice
 
@@ -50,11 +51,6 @@ class newGameCommand extends Command {
 				} 
 			}
 		}
-		/*for (let [_,mems] of message.guild.members.cache){
-			if (mems.displayName == 'Dem' || mems.displayName == 'Stoatly'){
-				players.push({"member":mems});
-			}
-		}*/
 
 		await gameStart.initialSetup();
 
@@ -71,6 +67,7 @@ class newGameCommand extends Command {
 		globalThis.missionOrder = missiontree.findTree(players.length);
 
 		for (let mission of missionOrder){
+			console.log(`Starting mission ${missionNum}`);
 			globalThis.failedvote = true;
 			let inflTotal = 0;
 			for (let ply of players){
@@ -98,10 +95,9 @@ class newGameCommand extends Command {
 
 			globalThis.enoughInfluence = true;				
 			await runMission.orderVoteArray();
-			
-			await runMission.determineMissionGoers();
-
 			if (enoughInfluence) { //Influence vote result decided
+				console.log('Enough influence spent: Mission underway.')
+				await runMission.determineMissionGoers();
 
 				await runMission.leaderPickPartner();
 
@@ -122,15 +118,18 @@ class newGameCommand extends Command {
 				}
 
 			} else{					
-				message.channel.send('Not enough influence was spent. The mission has failed.');
+				gameChannel.send('Not enough influence was spent. The mission has failed.');
+				if (InfluenceRegen > 0) gameChannel.send(`Everyone gains ${InfluenceRegen} influence.`);
+				for (let ply of players) ply.player.influence += InfluenceRegen;
 				failedvote = true;
 				missionNum++;
+				general = null;
+				major = null;
+				captain = null;
+				lastGeneral = null;
+				lastMajor = null;
+				lastCaptain = null;
 				if (failEffect){
-					general = null;
-					captain = null;
-					lastGeneral = null;
-					lastMajor = null;
-					lastCaptain = null;
 					let shouldEnd = await mission.fail(message.channel);
 					if (shouldEnd) return;
 				}

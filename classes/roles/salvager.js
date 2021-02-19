@@ -34,7 +34,8 @@ class Salvager extends Role
             msg += `\nType the number of the card you wish to discard.`;
             general.member.user.send(msg);
 
-            var leaderDiscardFilter = m => m.author.id === general.member.user.id;
+            let tempGen = general;
+            var leaderDiscardFilter = m => m.author.id === tempGen.member.user.id;
             var leaderDiscardMessage = new Discord.MessageCollector(general.member.user.dmChannel, leaderDiscardFilter);
 
             msg = shouldDraw+1;

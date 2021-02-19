@@ -144,5 +144,12 @@ module.exports = {
         for (let role of roles){
             await role.AfterPrivateMessage();
         }
+    },
+
+    async BeforeShuffleDrawPile()
+    {
+        for (let role of roles){
+            await role.BeforeShuffleDrawPile();
+        }
     }
 }

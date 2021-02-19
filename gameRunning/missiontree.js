@@ -94,11 +94,11 @@ module.exports = {
 			}
 			if (playerCount < 4){
 				missionTree = [
-					GatherArmaments,
-					GatherArmaments,
-					GatherArmaments,
-					GatherArmaments,
-					GatherArmaments
+					SecureDaisyField,
+					SecureDaisyField,
+					SecureDaisyField,
+					SecureDaisyField,
+					SecureDaisyField
 				]
 			}
 		}

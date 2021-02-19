@@ -10,7 +10,8 @@ class Role {
             playersRequired = 0,
             used = false,
             allowTwoBees = true,
-            canBeTarget = true
+            canBeTarget = true,
+            isTwoBeesRole = false
 		} = options;
 		this.name = name;
 		this.description = description;
@@ -22,6 +23,7 @@ class Role {
         this.used = used;
         this.allowTwoBees = allowTwoBees;
         this.canBeTarget = canBeTarget;
+        this.isTwoBeesRole = isTwoBeesRole;
 	}
 
 	AfterRolesPicked(){}
@@ -47,7 +49,7 @@ class Role {
     OverwriteLeaderDraw(){}
 
     DisplayCardsToLeaders(){
-        if (this.owner != general && this.owner != major) return;
+        if ((this.owner != general && this.owner != major) || this.isTwoBeesRole) return;
         let hand = cards.general;
         if (this.owner == major) hand = cards.major;
         let msg = '**You have drawn:**';
@@ -78,6 +80,8 @@ class Role {
     AfterInterrogation(){}
 
     AfterPrivateMessage(){}
+
+    BeforeShuffleDrawPile(){}
 }
 
 module.exports = Role;

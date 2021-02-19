@@ -17,7 +17,8 @@ module.exports = {
         await events.DisplayCardsToLeaders();
         await events.AfterCardsDisplayedToLeader();
 
-        var leaderDiscardFilter = m => m.author.id === general.member.user.id;
+        let tempGen = general;
+        var leaderDiscardFilter = m => m.author.id === tempGen.member.user.id;
         var leaderDiscardMessage = new Discord.MessageCollector(general.member.user.dmChannel, leaderDiscardFilter);
 
         msg = shouldDraw+1;
@@ -50,7 +51,8 @@ module.exports = {
         }
         msg += `\nType the number of the card you wish to **PLAY**.`
         captain.member.user.send(msg)
-        var partnerDiscardFilter = m => m.author.id === captain.member.user.id;
+        let tempCapt = captain;
+        var partnerDiscardFilter = m => m.author.id === tempCapt.member.user.id;
         var partnerDiscardMessage = new Discord.MessageCollector(captain.member.user.dmChannel, partnerDiscardFilter);
 
         globalThis.cardPlayed = shouldDraw+1;

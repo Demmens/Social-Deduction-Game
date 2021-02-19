@@ -47,6 +47,7 @@ class PrivateMeeting extends Mission{
 	}
 
 	async fail(){
+		if (!general) return;
 		await this.sendPrivateMessage(10);
 		return;
 	}
