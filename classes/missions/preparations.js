@@ -9,12 +9,12 @@ class Investigate extends Mission{
 		})
 	}
 
-	async success(channel){
+	async success(){
 		failEffect = false;
 		return
 	}
 
-	fail(channel){
+	fail(){
 		successEffect = false;
 		return;
 	}

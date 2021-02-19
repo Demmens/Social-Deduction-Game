@@ -11,10 +11,10 @@ class Investigate extends Mission{
 		})
 	}
 
-	async success(channel){
-		channel.send(`${general.member.user} Mention a user to learn their team.`);
+	async success(){
+		gameChannel.send(`${general.member.user} Mention a user to learn their team.`);
 		const filter = m => m.author.id === general.member.id;
-		const messageController = new Discord.MessageCollector(channel, filter);
+		const messageController = new Discord.MessageCollector(gameChannel, filter);
 		let msg = await messageController.next;
 		while (msg.mentions.members.array().length != 1){
 			msg = await messageController.next;
@@ -39,7 +39,7 @@ class Investigate extends Mission{
 		return;
 	}
 
-	fail(channel){
+	fail(){
 		for (let ply of players){
 			if (ply.player.team == 'traitor'){
 				let info = players[Math.floor(Math.random()*players.length)];

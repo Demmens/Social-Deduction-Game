@@ -9,7 +9,7 @@ class barPlayer extends Mission{
 		})
 	}
 
-	async success(channel){
+	async success(){
         let infl = -1;
         let bar;
 		for (let ply of players){
@@ -22,7 +22,7 @@ class barPlayer extends Mission{
 		return;
 	}
 
-	fail(channel){
+	fail(){
         let infl = -1;
         let bar;
 		for (let ply of players){

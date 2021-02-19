@@ -65,6 +65,8 @@ class Role {
 
     BeforeLeaderPass(){}
 
+    AfterLeaderPass(){}
+
     BeforePartnerCardPlayed(){}
 
     BeforeResultDetermined(){}
@@ -74,6 +76,8 @@ class Role {
     OnInterrogation(){}
 
     AfterInterrogation(){}
+
+    AfterPrivateMessage(){}
 }
 
 module.exports = Role;

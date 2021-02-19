@@ -38,7 +38,7 @@ module.exports = {
             i++;
         }
         cards.general = [];
-
+        await events.AfterLeaderPass();
         //Captain Draw.
         shouldDraw = cards.captain.length; //Captain should draw the remaining cards.
 
@@ -120,6 +120,7 @@ module.exports = {
         for (let card of cards.major) discardPile.push(card);
         cards.major = [];
 
+        await events.AfterLeaderPass();
         shouldDraw = cards.captain.length; //Captain should draw the remaining cards.
 
         msg = '**You have drawn:**'

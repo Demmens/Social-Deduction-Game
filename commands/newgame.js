@@ -9,7 +9,7 @@ const runMission = require("../gameRunning/runMission.js");
 // Setup
 globalThis.SuccessCards = 3; //Number of Succeed cards in the base deck
 globalThis.FailCards = 7; //Number of Fail cards in the base deck
-globalThis.innoRoleChoices = 3; //Amount of role choices innocents get
+globalThis.innoRoleChoices = 30; //Amount of role choices innocents get
 globalThis.traitorRoleChoices = 3; //Amount of role choices traitors get
 // Influence
 globalThis.InfluenceRegen = 1; //How much influence you gain per turn

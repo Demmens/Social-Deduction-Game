@@ -9,13 +9,13 @@ class Investigate extends Mission{
 		})
 	}
 
-	async success(channel){
-		channel.send('**INNOCENTS WIN**');
+	async success(){
+		gameChannel.send('**INNOCENTS WIN**');
 		return true;
 	}
 
-	fail(channel){
-		channel.send('**TRAITORS WIN**');
+	fail(){
+		gameChannel.send('**TRAITORS WIN**');
 		return true;
 	}
 }

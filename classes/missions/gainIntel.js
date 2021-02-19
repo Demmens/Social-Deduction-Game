@@ -9,15 +9,13 @@ class GainIntel extends Mission{
 		})
 	}
 
-	async success(channel){
+	async success(){
         missionOrder[missionNum] = SecureDaisyField;
-        console.log(missionOrder);
 		return;
 	}
 
-	fail(channel){
+	fail(){
         missionOrder[missionNum] = RescueOperatives;
-        console.log(missionOrder);
 		return;
 	}
 }

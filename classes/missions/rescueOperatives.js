@@ -10,11 +10,11 @@ class RescueOperatives extends Mission{
 		})
 	}
 
-	async success(channel){
+	async success(){
 		return;
 	}
 
-	fail(channel){
+	fail(){
         for (let i = 0; i < 2; i++) drawPile.push('Fail');
         drawPile = f.ArrRandomise(drawPile);
 		return;

@@ -9,12 +9,12 @@ class budgetCuts extends Mission{
 		})
 	}
 
-	async success(channel){
+	async success(){
 
 		return;
 	}
 
-	fail(channel){
+	fail(){
 
 		return;
 	}

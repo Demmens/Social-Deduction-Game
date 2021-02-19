@@ -9,12 +9,12 @@ class Armaments extends Mission{
 		})
 	}
 
-	async success(channel){
+	async success(){
 		discardPile.push('Success');
 		return
 	}
 
-	fail(channel){
+	fail(){
 		discardPile.push('Fail');
 		discardPile.push('Fail');
 		return;

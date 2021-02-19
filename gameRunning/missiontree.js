@@ -24,6 +24,7 @@ module.exports = {
 		globalThis.RescueOperatives = null;
 		globalThis.LaunchAssaultOnOpposingHive = null;
 		globalThis.SuspendAgents = null;
+		globalThis.SecurePrivateMeeting = null;
 		for (let mission of missions){
 			if (mission.name == 'Secure Daisy Field') SecureDaisyField = mission;
 			if (mission.name == 'Secure Daffodil Field') SecureDaffodilField = mission;
@@ -37,62 +38,68 @@ module.exports = {
 			if (mission.name == 'Rescue Operatives') RescueOperatives = mission;
 			if (mission.name == 'Suspend Agents') SuspendAgents = mission;
 			if (mission.name == 'Launch Assault on Opposing Hive') LaunchAssaultOnOpposingHive = mission;
+			if (mission.name == 'Secure Private Meeting') SecurePrivateMeeting = mission;
 		}
 		if (playerCount){
 			if (playerCount == 7 || playerCount == 8){
-				missionTree.push(GatherArmaments);
-				missionTree.push(SecureDaisyField);
-				missionTree.push(GatherArmaments);
-				missionTree.push(HiveInterrogation);
-				missionTree.push(SecureDandelionField);
-				missionTree.push(SourceIntelligence);
-				missionTree.push(HiveInterrogation);
-				missionTree.push(SecureDandelionField);
-				missionTree.push(SpreadPropoganda);
-				missionTree.push(SecureDaffodilField);
-				missionTree.push(HiveInterrogation);
-				missionTree.push(SecureLavenderField);
-				missionTree.push(CreateBackupPlan);
-				missionTree.push(LaunchAssaultOnOpposingHive);
-				missionTree.push(LaunchAssaultOnOpposingHive);
-				missionTree.push(LaunchAssaultOnOpposingHive);
-				missionTree.push(LaunchAssaultOnOpposingHive);	
+				missionTree = [
+					GatherArmaments,
+					SecureDaffodilField,
+					HiveInterrogation,
+					SecureDandelionField,
+					SecurePrivateMeeting,
+					SuspendAgents,
+					SecureDaffodilField,
+					HiveInterrogation,
+					SecureLavenderField,
+					CreateBackupPlan,
+					LaunchAssaultOnOpposingHive,
+					LaunchAssaultOnOpposingHive,
+					LaunchAssaultOnOpposingHive,
+					LaunchAssaultOnOpposingHive	
+				];
 			}
 			if (playerCount == 5 || playerCount == 6){
-				missionTree[0] = GatherArmaments;
-				missionTree[1] = SecureDaisyField;
-				missionTree[2] = GatherArmaments;
-				missionTree[3] = HiveInterrogation;
-				missionTree[4] = SpreadPropoganda;
-				missionTree[5] = SecureDaffodilField;
-				missionTree[6] = GatherArmaments;
-				missionTree[7] = SecureDandelionField;
-				missionTree[8] = HiveInterrogation;
-				missionTree[9] = SecureLavenderField;
-				missionTree[10] = LaunchAssaultOnOpposingHive;
-				missionTree[11] = LaunchAssaultOnOpposingHive;
-				missionTree[12] = LaunchAssaultOnOpposingHive;
-				missionTree[13] = LaunchAssaultOnOpposingHive;				
+				missionTree = [
+					GatherArmaments,
+					SecureDaisyField,
+					GatherArmaments,
+					HiveInterrogation,
+					SpreadPropoganda,
+					SecureDaffodilField,
+					GatherArmaments,
+					SecureDandelionField,
+					HiveInterrogation,
+					SecureLavenderField,
+					LaunchAssaultOnOpposingHive,
+					LaunchAssaultOnOpposingHive,
+					LaunchAssaultOnOpposingHive,
+					LaunchAssaultOnOpposingHive	
+				];	
 			}
 			if (playerCount == 4){
-				missionTree[0] = GatherArmaments;
-				missionTree[1] = SpreadPropoganda;
-				missionTree[2] = GatherArmaments;	
-				missionTree[3] = SecureDandelionField;
-				missionTree[4] = SecureDaisyField;
-				missionTree[5] = SecureDaffodilField;
-				missionTree[6] = SecureLavenderField;
-				missionTree[7] = LaunchAssaultOnOpposingHive;
-				missionTree[8] = LaunchAssaultOnOpposingHive;
-				missionTree[9] = LaunchAssaultOnOpposingHive;
-				missionTree[10] = LaunchAssaultOnOpposingHive;
+				missionTree = [
+					GatherArmaments,
+					SpreadPropoganda,
+					GatherArmaments,
+					SecureDandelionField,
+					SecureDaisyField,
+					SecureDaffodilField,
+					SecureLavenderField,
+					LaunchAssaultOnOpposingHive,
+					LaunchAssaultOnOpposingHive,
+					LaunchAssaultOnOpposingHive,
+					LaunchAssaultOnOpposingHive
+				];
 			}
 			if (playerCount < 4){
-				missionTree[0] = GatherArmaments;
-				missionTree[1] = GatherArmaments;
-				missionTree[2] = GatherArmaments;
-				missionTree[3] = GatherArmaments;
-				missionTree[4] = GatherArmaments;
+				missionTree = [
+					GatherArmaments,
+					GatherArmaments,
+					GatherArmaments,
+					GatherArmaments,
+					GatherArmaments
+				]
 			}
 		}
 

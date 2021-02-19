@@ -36,6 +36,7 @@ module.exports = {
 	//		Create the deck of cards to use for succeeding/failing the mission.
 		globalThis.drawPile = [];
 		globalThis.discardPile = [];
+		if (players.length >= playersFor3PlayerMissions) FailCards += 3;
 		for (let i=0;i<SuccessCards;i++){
 			drawPile.push("Success");
 		}

@@ -9,13 +9,13 @@ class spreadPropoganda extends Mission{
 		})
 	}
 
-	success(channel){
+	success(){
 		for (let ply of players){
 			if (ply.player.team == 'innocent') ply.player.influence += 5;
 		}
 	}
 
-	fail(channel){
+	fail(){
 		for (let ply of players){
 			if (ply.player.team == 'traitor') ply.player.influence += 5;
 		}

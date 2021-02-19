@@ -18,36 +18,38 @@ class Salvager extends Role
 
     async AfterCardsDisplayedToLeader()
     {
-        if ((general != this.owner && major != this.owner) || discardPile.length == 0) return;
+        if ((general != this.owner && major != this.owner)) return;
         let hand = cards.general;
         if (major == this.owner) hand = cards.major;
-        hand.push(discardPile[discardPile.length-1]); //Take top card of discard pile.
-        discardPile.splice(discardPile.length-1,1);
+        if (discardPile.length > 0){
+            hand.push(discardPile[discardPile.length-1]); //Take top card of discard pile.
+            discardPile.splice(discardPile.length-1,1);
+            let msg = '**You have drawn:**';
+            let x = 0;
+            for (let card of hand){
+                x++;
+                msg += `\n${x} - ${card}`;
+            }
+            msg += ` (salvaged)`; //Let them know which card is from the discard pile.
+            msg += `\nType the number of the card you wish to discard.`;
+            general.member.user.send(msg);
+
+            var leaderDiscardFilter = m => m.author.id === general.member.user.id;
+            var leaderDiscardMessage = new Discord.MessageCollector(general.member.user.dmChannel, leaderDiscardFilter);
+
+            msg = shouldDraw+1;
+            while (msg > shouldDraw || isNaN(msg)){
+                msg = await leaderDiscardMessage.next;
+                if (parseInt(msg.content) != NaN){
+                    msg = parseInt(msg.content) - 1;
+                }
+            }
+            discardPile.push(hand[msg]); // Discard specified card
+            hand.splice(msg,1); //Remove the card from the hand
+        }
+        
         let msg = '**You have drawn:**';
         let x = 0;
-        for (let card of hand){
-            x++;
-            msg += `\n${x} - ${card}`;
-        }
-        msg += ` (salvaged)`; //Let them know which card is from the discard pile.
-        msg += `\nType the number of the card you wish to discard.`;
-        general.member.user.send(msg);
-
-        var leaderDiscardFilter = m => m.author.id === general.member.user.id;
-        var leaderDiscardMessage = new Discord.MessageCollector(general.member.user.dmChannel, leaderDiscardFilter);
-
-        msg = shouldDraw+1;
-        while (msg > shouldDraw || isNaN(msg)){
-            msg = await leaderDiscardMessage.next;
-            if (parseInt(msg.content) != NaN){
-                msg = parseInt(msg.content) - 1;
-            }
-        }
-        discardPile.push(hand[msg]); // Discard specified card
-        hand.splice(msg,1); //Remove the card from the hand
-
-        msg = '**You have drawn:**';
-        x = 0;
         for (let card of hand){
             x++;
             msg += `\n${x} - ${card}`;

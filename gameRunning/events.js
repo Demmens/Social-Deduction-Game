@@ -97,6 +97,13 @@ module.exports = {
         }
     },
 
+    async AfterLeaderPass()
+    {
+        for (let role of roles){
+            await role.AfterLeaderPass();
+        }
+    },
+
     async BeforePartnerCardPlayed()
     {
         for (let role of roles){
@@ -129,6 +136,13 @@ module.exports = {
     {
         for (let role of roles){
             await role.AfterInterrogation();
+        }
+    },
+
+    async AfterPrivateMessage()
+    {
+        for (let role of roles){
+            await role.AfterPrivateMessage();
         }
     }
 }

@@ -10,7 +10,7 @@ class Target extends Mission{
 		})
 	}
 
-	async success(channel){
+	async success(){
         let done = false;
         let rdmPlayer;
         while (!done){
@@ -23,12 +23,12 @@ class Target extends Mission{
             }
         }
 
-        channel.send(`${rdmPlayer.player.role.name} is not a target.`);
+        gameChannel.send(`${rdmPlayer.player.role.name} is not a target.`);
 		return 
 	}
 
-	async fail(channel){
-        channel.send(`Waiting on traitors to choose their targets.`);
+	async fail(){
+        gameChannel.send(`Waiting on traitors to choose their targets.`);
         let traitorCount = 0;
         let roleRandomise = [];
 		for (let ply of players){
@@ -73,7 +73,7 @@ class Target extends Mission{
                 }
             }
         }
-        await channel.send('Traitors have chosen their new targets. The game will continue.');
+        await gameChannel.send('Traitors have chosen their new targets. The game will continue.');
         return
 	}
 }

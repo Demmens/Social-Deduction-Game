@@ -9,16 +9,16 @@ class PollenateDaisy extends Mission{
 		})
 	}
 
-	async success(channel){
+	async success(){
 		pollenated++;
 		if (pollenated == 3){
-			channel.send('**INNOCENTS WIN**');
+			gameChannel.send('**INNOCENTS WIN**');
 			return true;
 		}
 		return;
 	}
 
-	fail(channel){
+	fail(){
 		return;
 	}
 }

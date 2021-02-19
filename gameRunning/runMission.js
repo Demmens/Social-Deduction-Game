@@ -253,7 +253,7 @@ module.exports = {
         if (success){
             gameChannel.send(`**The mission was successful!**`);
             if (successEffect){
-                let shouldEnd = mission.success(gameChannel);
+                let shouldEnd = await mission.success(gameChannel);
                 if (shouldEnd) return;
             }
             else{
@@ -264,7 +264,7 @@ module.exports = {
         } else {
             gameChannel.send(`**The mission failed!**`);
             if (failEffect){
-                let shouldEnd = mission.fail(gameChannel);
+                let shouldEnd = await mission.fail(gameChannel);
                 if (shouldEnd) return;
             }
             else{
