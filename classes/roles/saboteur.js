@@ -16,7 +16,7 @@ class Saboteur extends Role
     BeforeResultDetermined(success)
     {
         let usedCommand = false;
-        let msgArr = this.owner.member.user.dmChannel.messages.cache.Array();
+        let msgArr = this.owner.member.user.dmChannel.messages.cache.array();
 
         for (let i = msgArr.length-1; i > 0; i--){
             let msg = msgArr[i];

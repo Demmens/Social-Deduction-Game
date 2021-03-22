@@ -9,7 +9,8 @@ class Tapper extends Role
 			name: 'Tapper',
 			description: 'Learn the result of interrogations and secret messages.',
 			influence: 8,
-            team: 'innocent'
+            team: 'innocent',
+            playersRequired: 100
 		})
     }
 

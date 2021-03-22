@@ -9,6 +9,7 @@ class Dictator extends Role
 			name: 'Dictator',
 			description: 'Votes cannot fail if you are on the mission.',
 			influence: 10,
+            playersRequired: 5,
             team: 'traitor'
 		})
     }

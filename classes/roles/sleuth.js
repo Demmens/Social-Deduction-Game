@@ -35,6 +35,7 @@ class Sleuth extends Role
                         let tmName = 'innocent'
                         if (ply.player.team == 'traitor') tmName = 'a traitor'
                         this.owner.member.user.send(`${ply.member.displayName} is ${tmName}`);
+                        gameChannel.send(`**The Sleuth has investigated ${ply.member.displayName}**`);
                     }
                 }
                 if (this.used) break;

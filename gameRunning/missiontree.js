@@ -32,7 +32,7 @@ module.exports = {
 			if (mission.name == 'Secure Lavender Field') SecureLavenderField = mission;
 			if (mission.name == 'Gather Armaments') GatherArmaments = mission;
 			if (mission.name == 'Spread Propoganda') SpreadPropoganda = mission;
-			if (mission.name == 'Hive Interrogation') HiveInterrogation = mission;
+			if (mission.name == 'Complete Background Checks') HiveInterrogation = mission;
 			if (mission.name == 'Create Backup Plan') CreateBackupPlan = mission;
 			if (mission.name == 'Source Intelligence') SourceIntelligence = mission;
 			if (mission.name == 'Rescue Operatives') RescueOperatives = mission;

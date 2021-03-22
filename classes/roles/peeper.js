@@ -9,7 +9,8 @@ class Peeper extends Role
 			name: 'Peeper',
 			description: 'Before the draw pile is shuffled, view all the remaining cards.',
 			influence: 12,
-            team: 'innocent'
+            team: 'innocent',
+            playersRequired: 1000
 		})
     }
 

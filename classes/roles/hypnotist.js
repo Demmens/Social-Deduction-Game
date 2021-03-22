@@ -9,7 +9,8 @@ class Hypnotist extends Role
 			name: 'Hypnotist',
 			description: 'Once per game may force the captain to play the wrong card (if they have a choice)',
 			influence: 8,
-            team: 'traitor'
+            team: 'traitor',
+            playersRequired: 1000
 		})
     }
     BeforeVoting()

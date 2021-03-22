@@ -5,7 +5,7 @@ const events = require('../../gameRunning/events');
 class Investigate extends Mission{
 	constructor(){
 		super({
-			name: 'Hive Interrogation',
+			name: 'Complete Background Checks',
 			successtext: 'Determine a players loyalty',
 			failtext: 'Traitors learn the identity of a non-target player'
 		})
@@ -13,7 +13,8 @@ class Investigate extends Mission{
 
 	async success(){
 		gameChannel.send(`${general.member.user} Mention a user to learn their team.`);
-		const filter = m => m.author.id === general.member.id;
+		let tempGen = general;
+		const filter = m => m.author.id === tempGen.member.id;
 		const messageController = new Discord.MessageCollector(gameChannel, filter);
 		let msg = await messageController.next;
 		while (msg.mentions.members.array().length != 1){

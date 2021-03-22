@@ -11,6 +11,7 @@ class Fixer extends Role
 			name: 'Fixer',
 			description: `${maxFixerUses} times per game, choose the winner of the influence vote.`,
 			influence: 10,
+            playersRequired: 1000,
             team: 'traitor'
 		})
     }

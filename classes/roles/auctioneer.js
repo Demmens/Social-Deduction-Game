@@ -10,7 +10,8 @@ class Auctioneer extends Role
 			name: 'Auctioneer',
 			description: ' Instead of putting forth influence, outbid a chosen player by a selected number of influence (if you have enough). Wins influence ties.',
 			influence: 15,
-            team: 'innocent'
+            team: 'innocent',
+            playersRequired: 100
 		})
     }
 

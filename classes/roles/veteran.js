@@ -10,6 +10,7 @@ class Veteran extends Role
 			name: 'Veteran',
 			description: 'As general or major, always draw a success card (if possible)',
 			influence: 10,
+            playersRequired: 10000,
             team: 'innocent'
 		})
     }

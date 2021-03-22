@@ -29,7 +29,6 @@ class stingCommand extends Command {
             x++;
         }
 
-
         return {player, stinger, plynum}
     }
 	async exec(message, args) {

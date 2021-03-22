@@ -10,7 +10,8 @@ class Zombee extends Role
 			name: 'Zombee',
 			description: 'When you are on a mission, choose another player on the mission to infect. When this player is general or major, they draw 1 less success card than usual.',
 			influence: 6,
-            team: 'traitor'
+            team: 'traitor',
+            playersRequired: 1000,
 		})
     }
 

@@ -177,7 +177,7 @@ module.exports = {
 
     traitorsPickTargets: async function()
     {
-		let targetTbl = [];
+		globalThis.targetTbl = [];
 //=========================================
 //	Traitors get targets
 

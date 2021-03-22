@@ -11,7 +11,8 @@ class PlanBee extends Role
 			description: 'Choose your target.',
 			influence: 8,
             team: 'traitor',
-            hasTarget: false
+            hasTarget: false,
+            playersRequired: 1000
 		})
     }
 

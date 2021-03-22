@@ -10,7 +10,7 @@ class Omniscient extends Role
 			description: 'Knows all traitors, but the traitors also win if they sting you.',
 			influence: 10,
             team: 'innocent',
-            playersRequired: 5,
+            playersRequired: 7,
             allowTwoBees: false
 		})
     }

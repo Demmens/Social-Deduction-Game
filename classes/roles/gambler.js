@@ -11,7 +11,7 @@ class Gambler extends Role
 			description: 'You may type !reroll in the DM channel to reroll your target once per game.',
 			influence: 8,
             team: 'traitor',
-            hasTarget: false
+            hasTarget: true
 		})
     }
 }

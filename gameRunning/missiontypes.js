@@ -96,7 +96,8 @@ module.exports = {
         while (msg > shouldDraw || isNaN(msg)){
             msg = await leaderDiscardMessage.next;
             if (!isNaN(msg.content)){
-                msg = parseInt(msg.content) - 1;
+                msg = parseInt(msg.content);
+                msg--;
             }
         }
 
@@ -111,7 +112,8 @@ module.exports = {
         while (msg > shouldDraw || isNaN(msg)){
             msg = await leaderDiscardMessage.next;
             if (!isNaN(msg.content)){
-                msg = parseInt(msg.content) - 1;
+                msg = parseInt(msg.content);
+                msg--;
             }
         }
 

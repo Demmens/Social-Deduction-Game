@@ -10,7 +10,7 @@ class PeaceKeeper extends Role
 			description: 'Once per game may disarm a player. If that player is a traitor, their sting is removed.',
 			influence: 8,
             team: 'innocent',
-            playersRequired: 5
+            playersRequired: 1000
 		})
     }
 

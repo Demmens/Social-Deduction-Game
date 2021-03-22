@@ -11,7 +11,7 @@ globalThis.SuccessCards = 3; //Number of Succeed cards in the base deck
 globalThis.FailCards = 7; //Number of Fail cards in the base deck
 globalThis.innoRoleChoices = 3; //Amount of role choices innocents get
 globalThis.traitorRoleChoices = 3; //Amount of role choices traitors get
-globalThis.playersFor3PlayerMissions = 6; //How many players need to be in the game for 3 player missions instead of 2 player
+globalThis.playersFor3PlayerMissions = 10; //How many players need to be in the game for 3 player missions instead of 2 player
 // Influence
 globalThis.InfluenceRegen = 1; //How much influence you gain per turn
 globalThis.influenceCost = 2; //How much influence per player is required for a mission to go through
@@ -66,7 +66,9 @@ class newGameCommand extends Command {
 		globalThis.missionNum = 1;
 		globalThis.missionOrder = missiontree.findTree(players.length);
 
-		for (let mission of missionOrder){
+		for (let i = 0; i<missionOrder.length; i++){
+			i = missionNum-1;
+			globalThis.mission = missionOrder[i];
 			console.log(`Starting mission ${missionNum}`);
 			globalThis.failedvote = true;
 			let inflTotal = 0;

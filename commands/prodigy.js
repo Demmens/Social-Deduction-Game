@@ -15,7 +15,7 @@ class prodigyCommand extends Command {
 
         for (let role of roles){
             if (role.owner.member.user == message.author && role.name == "Prodigy") prodigy = ply;
-            if (role.team == 'traitor') traitors.push(ply);
+            if (role.team == 'traitor') traitors.push(role);
         }
         
         if (prodigy.player.hasBuzzed) return message.channel.send(`${message.author} You may only buzz once per game.`)
